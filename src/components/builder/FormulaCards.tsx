@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronRight } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { FORMULAS } from "@/lib/menu/data";
 import { DEFAULT_POLICY } from "@/lib/menu/policies";
@@ -54,28 +54,48 @@ const LABEL_KEY: Record<Category, string> = {
   sauce: "sauce",
 };
 
-export function FormulaIncludes({ formula, locale, compact = false }: { formula: Formula; locale: Locale; compact?: boolean }) {
+/** Included quantities as a compact, scannable line of figures. */
+export function FormulaIncludes({ formula, layout = "inline" }: { formula: Formula; locale?: Locale; layout?: "inline" | "list" }) {
   const t = useTranslations("formula");
+  if (layout === "list") {
+    return (
+      <ul className="grid gap-1.5">
+        {CATEGORIES.map((c) => {
+          const { included, provisional } = resolveAllowance(formula, c, DEFAULT_POLICY);
+          return (
+            <li key={c} className="flex items-baseline gap-2.5 text-[14px] text-ink-soft">
+              <span className="t-num w-5 text-end font-semibold text-ink">{included}</span>
+              <span>
+                {t(LABEL_KEY[c], { count: included })}
+                {provisional && <ProvisionalMark />}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    );
+  }
   return (
-    <ul className={`grid ${compact ? "gap-1" : "gap-1.5"}`}>
+    <ul className="flex flex-wrap gap-x-3 gap-y-1 text-[13px] leading-snug text-ink-soft">
       {CATEGORIES.map((c) => {
         const { included, provisional } = resolveAllowance(formula, c, DEFAULT_POLICY);
         return (
-          <li key={c} className="flex items-baseline gap-2 text-sm text-ink-soft">
-            <span className="w-6 text-end text-base font-extrabold tabular-nums text-ink">{included}</span>
-            <span>
-              {t(LABEL_KEY[c], { count: included })}
-              {provisional && (
-                <span className="ms-1.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-800" title={t("toConfirmHint")}>
-                  {t("toConfirm")}
-                </span>
-              )}
-            </span>
+          <li key={c} className="whitespace-nowrap">
+            <span className="t-num font-semibold text-ink">{included}</span> {t(LABEL_KEY[c], { count: included })}
+            {provisional && <ProvisionalMark />}
           </li>
         );
       })}
-      <li className="sr-only">{formatMAD(formula.price, locale)}</li>
     </ul>
+  );
+}
+
+function ProvisionalMark() {
+  const t = useTranslations("formula");
+  return (
+    <abbr title={t("toConfirmHint")} className="ms-0.5 cursor-help text-amber-700 no-underline" aria-label={t("toConfirm")}>
+      *
+    </abbr>
   );
 }
 
@@ -84,57 +104,69 @@ export function FormulaCards({ onPick, activeId }: { onPick?: (id: string) => vo
   const locale = useLocale() as Locale;
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {FORMULAS.map((f, i) => {
-        const active = activeId === f.id;
-        const body = (
-          <>
-            <div className="relative -mx-2 -mt-2 overflow-hidden rounded-[22px] bg-[radial-gradient(circle_at_50%_45%,#ffffff,#eef1ea)] px-6 pb-3 pt-6">
-              <span
-                className="absolute start-4 top-4 h-2.5 w-2.5 rounded-full ring-4 ring-white"
-                style={{ backgroundColor: f.accent }}
-                aria-hidden
-              />
-              <div className="mx-auto w-[78%] transition-transform duration-700 ease-[var(--ease-out-soft)] group-hover:rotate-6 group-hover:scale-[1.04]">
-                <SaladBowl selection={SHOWCASE[f.id]} mode="static" density={0.65} label={t("previewAlt", { name: f.name[locale] })} />
-              </div>
-            </div>
-            <div className="flex flex-1 flex-col px-2 pb-1 pt-4">
-              <div className="flex items-start justify-between gap-3">
-                <h3 className="text-lg font-extrabold uppercase leading-tight tracking-wide">{f.name[locale]}</h3>
-                <p className="shrink-0 text-end">
-                  <span className="block text-[10px] font-semibold uppercase tracking-wider text-mute">{t("from")}</span>
-                  <span className="text-2xl font-extrabold tabular-nums transition-colors group-hover:text-leaf-deep">{formatMAD(f.price, locale)}</span>
-                </p>
-              </div>
-              <div className="mt-3 flex-1">
-                <FormulaIncludes formula={f} locale={locale} />
-              </div>
-              <span
-                className={`mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-full text-sm font-bold transition-all ${
-                  active ? "bg-leaf text-white" : "bg-ink text-white group-hover:bg-leaf-deep"
-                }`}
-              >
-                {active ? t("current") : t("choose")}
-                <ArrowRight size={16} className="flip-rtl" aria-hidden />
+    <div>
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4 xl:gap-4">
+        {FORMULAS.map((f, i) => {
+          const active = activeId === f.id;
+          // "Melina Prestige" → small "Melina" eyebrow + serif "Prestige".
+          const [brand, ...rest] = f.name[locale].split(" ");
+          const body = (
+            <>
+              {/* Bowl preview: small on phones, hero-sized on wide cards. */}
+              <span className="relative grid w-[30%] max-w-[132px] shrink-0 place-items-center self-center xl:w-full xl:max-w-none xl:rounded-[20px] xl:bg-[radial-gradient(circle_at_50%_45%,#fff,var(--color-stone))] xl:p-6">
+                <span className="block w-full transition-transform duration-700 ease-[var(--ease-out-soft)] group-hover:rotate-6 xl:w-[78%]">
+                  <SaladBowl selection={SHOWCASE[f.id]} mode="static" density={0.6} label={t("previewAlt", { name: f.name[locale] })} />
+                </span>
               </span>
-            </div>
-          </>
-        );
-        const cls = `group rise relative flex flex-col rounded-[28px] border bg-white p-4 text-start shadow-[0_1px_0_rgba(0,0,0,0.02),0_20px_40px_-28px_rgba(32,36,33,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_30px_60px_-30px_rgba(32,36,33,0.45)] ${
-          active ? "border-leaf ring-2 ring-leaf/40" : "border-line"
-        }`;
-        const style = { animationDelay: `${i * 90}ms` };
-        return onPick ? (
-          <button key={f.id} type="button" className={cls} style={style} onClick={() => onPick(f.id)} aria-pressed={active}>
-            {body}
-          </button>
-        ) : (
-          <Link key={f.id} href={`/composer?formule=${f.id}`} className={cls} style={style}>
-            {body}
-          </Link>
-        );
-      })}
+              <span className="flex min-w-0 flex-1 flex-col xl:mt-4">
+                <span className="flex items-start justify-between gap-2">
+                  <span className="min-w-0">
+                    <span className="t-eyebrow flex items-center gap-1.5 text-mute">
+                      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: f.accent }} aria-hidden />
+                      {brand}
+                    </span>
+                    <span className="t-h3 mt-1 block">{rest.join(" ")}</span>
+                  </span>
+                  <span className="shrink-0 text-end">
+                    <span className="block text-[11px] text-mute">{t("from")}</span>
+                    <span className="t-price block text-[22px] leading-tight text-ink">{formatMAD(f.price, locale)}</span>
+                  </span>
+                </span>
+                <span className="mt-2.5 block">
+                  <FormulaIncludes formula={f} />
+                </span>
+                <span
+                  className={`mt-4 hidden h-11 items-center justify-center gap-2 rounded-full text-[14px] font-semibold transition-colors xl:inline-flex ${
+                    active ? "bg-leaf-deep text-white" : "bg-ink text-white group-hover:bg-black"
+                  }`}
+                >
+                  {active ? t("current") : t("choose")}
+                  <ArrowRight size={16} className="flip-rtl" aria-hidden />
+                </span>
+              </span>
+              <ChevronRight size={18} className="flip-rtl ms-1 shrink-0 self-center text-mute transition-transform group-hover:translate-x-0.5 xl:hidden" aria-hidden />
+            </>
+          );
+          const cls = `group rise relative flex items-stretch gap-4 rounded-[var(--radius-card)] bg-cream p-3 pe-3.5 text-start transition-[transform,box-shadow] duration-300 active:scale-[0.985] xl:flex-col xl:gap-0 xl:p-4 ${
+            active
+              ? "shadow-[inset_0_0_0_2px_var(--color-leaf-deep),var(--shadow-soft)]"
+              : "shadow-[inset_0_0_0_1px_var(--color-line),var(--shadow-soft)] hover:shadow-[inset_0_0_0_1px_var(--color-ink-soft),var(--shadow-lift)]"
+          }`;
+          const style = { animationDelay: `${i * 70}ms` };
+          return onPick ? (
+            <button key={f.id} type="button" className={cls} style={style} onClick={() => onPick(f.id)} aria-pressed={active}>
+              {body}
+            </button>
+          ) : (
+            <Link key={f.id} href={`/composer?formule=${f.id}`} className={cls} style={style}>
+              {body}
+            </Link>
+          );
+        })}
+      </div>
+      <p className="mt-3 text-[12px] text-mute">
+        <span className="text-amber-700">*</span> {t("toConfirmHint")}
+      </p>
     </div>
   );
 }

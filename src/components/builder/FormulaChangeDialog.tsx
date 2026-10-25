@@ -38,20 +38,20 @@ export function FormulaChangeDialog({
         e.preventDefault();
         onCancel();
       }}
-      className="m-auto w-[min(92vw,460px)] rounded-[28px] bg-white p-0 text-ink shadow-2xl backdrop:bg-ink/50 backdrop:backdrop-blur-sm"
+      className="m-auto w-[min(92vw,460px)] rounded-[var(--radius-sheet)] bg-cream p-0 text-ink shadow-2xl backdrop:bg-ink/50 backdrop:backdrop-blur-sm"
       aria-labelledby="fc-title"
     >
       <div className="p-6">
-        <h2 id="fc-title" className="text-xl font-extrabold">
+        <h2 id="fc-title" className="t-h3">
           {t("title", { name: to.name[locale] })}
         </h2>
-        <p className="mt-1 text-sm text-ink-soft">{t("intro", { from: from.name[locale] })}</p>
+        <p className="t-small mt-2 text-ink-soft">{t("intro", { from: from.name[locale] })}</p>
         <ul className="mt-4 grid gap-2">
           {impact.impacts.map((i) => {
             const fee = DEFAULT_POLICY.extraSlotFee[i.category];
             return (
               <li key={i.category} className={`rounded-2xl p-3 text-sm ${i.mustRemove ? "bg-red-50 text-red-800" : "bg-mist"}`}>
-                <p className="font-bold">
+                <p className="font-semibold">
                   {tc(`${i.category}.plural`)} · {t("selectedIncluded", { selected: i.selected, included: i.includedAfter })}
                 </p>
                 <p className="mt-0.5">
@@ -65,18 +65,18 @@ export function FormulaChangeDialog({
             );
           })}
         </ul>
-        <p className="mt-4 flex items-baseline justify-between rounded-2xl bg-paper p-3 text-sm ring-1 ring-line">
+        <p className="mt-4 flex items-baseline justify-between rounded-2xl bg-white p-3.5 text-[14px] shadow-[inset_0_0_0_1px_var(--color-line)]">
           <span className="text-ink-soft">{t("newTotal")}</span>
           <span>
             <span className="me-2 text-mute line-through tabular-nums">{formatMAD(impact.priceBefore, locale)}</span>
-            <span className="text-lg font-extrabold tabular-nums">{formatMAD(impact.priceAfter, locale)}</span>
+            <span className="t-price text-[19px]">{formatMAD(impact.priceAfter, locale)}</span>
           </span>
         </p>
         <div className="mt-5 grid gap-2 sm:grid-cols-2">
-          <button type="button" onClick={onCancel} className="h-12 rounded-full bg-stone font-bold hover:bg-line">
+          <button type="button" onClick={onCancel} className="btn btn-ghost">
             {t("keep", { name: from.name[locale] })}
           </button>
-          <button type="button" onClick={onConfirm} className="h-12 rounded-full bg-ink font-bold text-white hover:bg-leaf-deep">
+          <button type="button" onClick={onConfirm} className="btn btn-primary">
             {impact.requiresResolution ? t("switchAndAdjust") : t("switch")}
           </button>
         </div>

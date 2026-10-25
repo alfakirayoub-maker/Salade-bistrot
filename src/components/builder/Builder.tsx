@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { ArrowLeft, ArrowRight, ChevronDown, Search, X } from "lucide-react";
+import type { ToppingGroup } from "@/lib/menu/types";
 import { FORMULAS_BY_ID, ITEMS_BY_ID, MENU_ITEMS, TOPPING_GROUPS } from "@/lib/menu/data";
 import { DEFAULT_POLICY } from "@/lib/menu/policies";
 import { CATEGORIES, emptySelection, type Category, type Locale, type MenuItem, type Selection } from "@/lib/menu/types";
@@ -13,13 +14,14 @@ import { formatDelta, formatMAD } from "@/lib/format";
 import { Link } from "@/i18n/navigation";
 import { SaladBowl } from "@/components/bowl/SaladBowl";
 import { setDropOrigin } from "@/components/bowl/dropOrigin";
-import { CartButton, Logo } from "@/components/site/Header";
+import { CartButton } from "@/components/site/Header";
 import { LanguageSwitcher } from "@/components/site/LanguageSwitcher";
 import { FormulaCards } from "./FormulaCards";
 import { IngredientChip } from "./IngredientChip";
 import { Summary } from "./Summary";
 import { FormulaChangeDialog } from "./FormulaChangeDialog";
 import { Reveal } from "./Reveal";
+import { AnimatedPrice } from "./AnimatedPrice";
 
 type Stage = "formula" | "build" | "reveal";
 
@@ -45,19 +47,33 @@ export function Builder({ initialFormulaId, editId }: { initialFormulaId?: strin
   const tc = useTranslations("categories");
   const locale = useLocale() as Locale;
 
-  // Editing a salad from the cart restores its exact composition.
-  // (The composer renders client-side only, behind useSearchParams.)
-  const [editLine] = useState(() => {
-    const line = editId ? cart.get().find((l) => l.id === editId) : undefined;
-    return line && FORMULAS_BY_ID[line.formulaId] ? line : null;
+  // Initial state, in priority order:
+  // 1. the session draft (survives a language switch, which remounts the page),
+  // 2. a cart line being edited (?modifier=…),
+  // 3. the formula picked on the home page (?formule=…).
+  const [init] = useState<Draft | null>(() => {
+    const draft = readDraft();
+    if (editId) {
+      if (draft?.editing === editId) return draft;
+      const line = cart.get().find((l) => l.id === editId);
+      return line && FORMULAS_BY_ID[line.formulaId]
+        ? { formulaId: line.formulaId, selection: line.selection, name: line.name, editing: line.id, step: 0, stage: "build" }
+        : null;
+    }
+    if (draft && !draft.editing && (!initialFormulaId || draft.formulaId === initialFormulaId)) return draft;
+    return null;
   });
-  const validInitial = editLine?.formulaId ?? (initialFormulaId && FORMULAS_BY_ID[initialFormulaId] ? initialFormulaId : null);
+  const validInitial = init?.formulaId ?? (initialFormulaId && FORMULAS_BY_ID[initialFormulaId] ? initialFormulaId : null);
   const [formulaId, setFormulaId] = useState<string | null>(validInitial);
-  const [stage, setStage] = useState<Stage>(validInitial ? "build" : "formula");
-  const [selection, setSelection] = useState<Selection>(() => editLine?.selection ?? emptySelection());
-  const [step, setStep] = useState(0);
-  const [name, setName] = useState(editLine?.name ?? "");
-  const [editing, setEditing] = useState<string | null>(editLine?.id ?? null);
+  const [stage, setStage] = useState<Stage>(init?.stage ?? (validInitial ? "build" : "formula"));
+  const [selection, setSelection] = useState<Selection>(() => init?.selection ?? emptySelection());
+  const [step, setStep] = useState(init?.step ?? 0);
+  const [name, setName] = useState(init?.name ?? "");
+  const [editing, setEditing] = useState<string | null>(init?.editing ?? null);
+  const [savedToCart, setSavedToCart] = useState(false);
+  const [compact, setCompact] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [group, setGroup] = useState<ToppingGroup | "all">("all");
   const [query, setQuery] = useState("");
   const [notice, setNotice] = useState<Notice | null>(null);
   const [pendingChange, setPendingChange] = useState<{ to: string; impact: FormulaChangeImpact } | null>(null);
@@ -69,6 +85,14 @@ export function Builder({ initialFormulaId, editId }: { initialFormulaId?: strin
 
   const formula = formulaId ? FORMULAS_BY_ID[formulaId] : null;
   const category = CATEGORIES[step];
+
+  useEffect(() => {
+    if (savedToCart || !formulaId) {
+      clearDraft();
+      return;
+    }
+    writeDraft({ formulaId, selection, step, stage, name, editing });
+  }, [formulaId, selection, step, stage, name, editing, savedToCart]);
   const breakdown = useMemo(
     () => (formula ? priceSalad(formula, selection, ITEMS_BY_ID, DEFAULT_POLICY) : null),
     [formula, selection],
@@ -174,12 +198,13 @@ export function Builder({ initialFormulaId, editId }: { initialFormulaId?: strin
     setPendingChange(null);
   };
 
-  const scrollListTop = () => listRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-
   const goToStep = (i: number) => {
     setStep(i);
     setQuery("");
-    scrollListTop();
+    setSearchOpen(false);
+    setGroup("all");
+    listRef.current?.scrollTo({ top: 0 });
+    setCompact(false);
   };
 
   const firstIssueStep = useMemo(() => {
@@ -205,9 +230,9 @@ export function Builder({ initialFormulaId, editId }: { initialFormulaId?: strin
   const items = useMemo(() => {
     const all = ITEMS_BY_CATEGORY[category];
     const q = normalize(query.trim());
-    if (!q) return all;
+    if (!q) return group === "all" ? all : all.filter((i) => i.group === group);
     return all.filter((i) => normalize(i.name.fr).includes(q) || i.name.ar.includes(query.trim()));
-  }, [category, query]);
+  }, [category, query, group]);
 
   const extraIds = useMemo(() => new Set(breakdown?.categories[category].extraItemIds ?? []), [breakdown, category]);
 
@@ -219,15 +244,15 @@ export function Builder({ initialFormulaId, editId }: { initialFormulaId?: strin
     return (
       <div className="min-h-dvh">
         <BuilderTopBar />
-        <main className="mx-auto max-w-7xl px-4 pb-16 pt-8 sm:px-6 sm:pt-12">
-          <p className="text-sm font-bold uppercase tracking-[0.18em] text-leaf-deep">{t("formulaEyebrow")}</p>
-          <h1 className="display mt-2 text-4xl sm:text-5xl">{t("formulaTitle")}</h1>
-          <p className="mt-3 max-w-xl text-ink-soft">{t("formulaSubtitle")}</p>
-          <div className="mt-8">
+        <main className="mx-auto max-w-7xl px-4 pb-16 pt-6 sm:px-6 sm:pt-12">
+          <p className="t-eyebrow text-leaf-deep">{t("formulaEyebrow")}</p>
+          <h1 className="t-h1 mt-3">{t("formulaTitle")}</h1>
+          <p className="t-body mt-3 max-w-xl text-ink-soft">{t("formulaSubtitle")}</p>
+          <div className="mt-6 sm:mt-8">
             <FormulaCards onPick={pickFormula} activeId={formulaId} />
           </div>
           {formula && (
-            <button type="button" onClick={() => setStage("build")} className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-ink-soft hover:text-ink">
+            <button type="button" onClick={() => setStage("build")} className="btn btn-ghost mt-6">
               <ArrowLeft size={16} className="flip-rtl" aria-hidden />
               {t("backToBuilder")}
             </button>
@@ -255,9 +280,16 @@ export function Builder({ initialFormulaId, editId }: { initialFormulaId?: strin
         name={name}
         onName={setName}
         editing={editing}
-        onEdit={() => setStage("build")}
-        onAdded={(id) => setEditing(id)}
+        onEdit={() => {
+          setSavedToCart(false);
+          setStage("build");
+        }}
+        onAdded={(id) => {
+          setEditing(id);
+          setSavedToCart(true);
+        }}
         onRestart={() => {
+          setSavedToCart(false);
           setSelection(emptySelection());
           setName("");
           setEditing(null);
@@ -274,126 +306,184 @@ export function Builder({ initialFormulaId, editId }: { initialFormulaId?: strin
   // ------------------------------------------------------------------------
 
   const summary = breakdown.categories[category];
-  const counterTone = summary.extra > 0 ? "text-leaf-deep" : summary.selected === summary.included ? "text-ink" : "text-ink-soft";
   const isLast = step === CATEGORIES.length - 1;
-  const nextLabel = isLast ? t("finish") : tc(`${CATEGORIES[step + 1]}.plural`);
-  const nextCaption = isLast ? t("lastStep") : t("next");
+  const ctaLabel = isLast ? t("finish") : t("continue");
+  const ctaCaption = isLast ? t("lastStep") : t("nextIs", { step: tc(`${CATEGORIES[step + 1]}.plural`) });
+  const searchable = category === "ingredient" || category === "topping";
+  const itemCount = Object.values(selection).flat().length;
+  const cta = (
+    <PriceAndCta
+      total={breakdown.total}
+      label={ctaLabel}
+      caption={ctaCaption}
+      onNext={next}
+      flashKey={flashKey}
+      delta={lastDelta}
+      onBack={step > 0 ? () => goToStep(step - 1) : undefined}
+    />
+  );
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-paper lg:grid lg:grid-cols-[minmax(360px,440px)_1fr_minmax(300px,360px)] lg:grid-rows-[auto_1fr]">
+    <div className="flex h-dvh flex-col overflow-hidden bg-paper lg:grid lg:grid-cols-[minmax(380px,440px)_1fr_minmax(320px,380px)] lg:grid-rows-[auto_1fr]">
       <BuilderTopBar
         className="lg:col-span-3"
         formulaName={formula.name[locale]}
-        onFormula={() => setStage("formula")}
+        onFormula={() => (window.matchMedia("(min-width: 1024px)").matches ? setStage("formula") : setSummaryOpen(true))}
+        step={step}
+        breakdown={breakdown}
+        onStep={goToStep}
       />
 
-      {/* Bowl: always visible (sticky region on mobile, centre stage on desktop) */}
+      {/* Stage: the bowl stays the hero; it compacts while the list scrolls. */}
       <section
         aria-label={t("bowlRegion")}
-        className="relative flex shrink-0 items-center justify-center bg-[radial-gradient(ellipse_at_50%_40%,#ffffff_0%,var(--color-paper)_60%,#eef1ea_100%)] px-4 py-3 lg:order-2 lg:py-8"
+        className="relative flex shrink-0 items-center justify-center bg-[radial-gradient(ellipse_at_50%_45%,#ffffff_0%,var(--color-paper)_62%)] px-4 pb-6 pt-3 lg:order-2 lg:pb-10 lg:pt-8 [@media(max-height:700px)]:pb-5 [@media(max-height:700px)]:pt-1"
       >
-        <div className="w-[min(72vw,31dvh)] sm:w-[min(60vw,38dvh)] lg:w-[min(46vw,68vh,640px)]">
+        <div
+          className={`transition-[width] duration-500 ease-[var(--ease-out-soft)] lg:w-[min(46vw,68vh,640px)] ${
+            compact ? "w-[min(40vw,19dvh)]" : "w-[min(78vw,37dvh)] sm:w-[min(60vw,40dvh)] [@media(max-height:700px)]:w-[min(60vw,27dvh)]"
+          }`}
+        >
           <SaladBowl selection={selection} emptyLabel={t("emptyBowl")} label={t("bowlAlt")} />
         </div>
-        <ProgressDots step={step} breakdown={breakdown} onStep={goToStep} className="absolute bottom-2 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 lg:bottom-6" />
-        <p className="pointer-events-none absolute end-3 top-2 hidden rounded-full sm:block bg-white/80 px-2 py-0.5 text-[10px] font-semibold text-mute ring-1 ring-line lg:end-6 lg:top-6" title={t("prototypeHint")}>
+        <p
+          className="pointer-events-none absolute end-4 top-3 hidden rounded-full bg-cream/90 px-2.5 py-1 text-[10.5px] font-medium text-mute shadow-[inset_0_0_0_1px_var(--color-line)] sm:block lg:end-6 lg:top-6"
+          title={t("prototypeHint")}
+        >
           {t("prototypeBadge")}
         </p>
       </section>
 
-      {/* Selection panel */}
-      <section className="flex min-h-0 flex-1 flex-col border-line bg-white lg:order-1 lg:border-e" aria-labelledby="step-title">
-        <StepTabs step={step} breakdown={breakdown} onStep={goToStep} />
-        <div className="flex items-end justify-between gap-3 px-4 pb-2 pt-3 sm:px-5">
-          <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-mute">{t("stepOf", { step: step + 1, total: CATEGORIES.length })}</p>
-            <h2 id="step-title" className="text-xl font-extrabold leading-tight">
+      {/* Picker sheet */}
+      <section
+        className="relative z-10 -mt-4 flex min-h-0 flex-1 flex-col rounded-t-[var(--radius-sheet)] bg-cream shadow-[0_-1px_0_var(--color-line),0_-18px_40px_-30px_rgba(29,33,30,0.45)] lg:order-1 lg:mt-0 lg:rounded-none lg:shadow-[1px_0_0_var(--color-line)]"
+        aria-labelledby="step-title"
+      >
+        <div className="px-5 pb-3 pt-4 lg:px-6 lg:pt-6 [@media(max-height:700px)]:pb-2 [@media(max-height:700px)]:pt-3">
+          <div className="flex items-center justify-between gap-3">
+            <p className="t-eyebrow t-num text-mute" dir="ltr">
+              <span className="text-ink">{String(step + 1).padStart(2, "0")}</span> / {String(CATEGORIES.length).padStart(2, "0")}
+            </p>
+            <Counter selected={summary.selected} included={summary.included} extra={summary.extra} blocked={summary.extraSlotFee === null} provisional={summary.provisional} />
+          </div>
+          <div className="mt-1.5 flex items-center justify-between gap-3">
+            <h2 id="step-title" key={category} className="t-h3 rise min-w-0">
               {t(`steps.${category}`)}
             </h2>
+            {searchable && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchOpen((o) => !o);
+                  setQuery("");
+                }}
+                aria-expanded={searchOpen}
+                aria-label={t("search")}
+                className={`icon-btn shrink-0 ${searchOpen ? "bg-ink text-white hover:bg-ink" : "bg-stone/70"}`}
+              >
+                {searchOpen ? <X size={18} aria-hidden /> : <Search size={18} aria-hidden />}
+              </button>
+            )}
           </div>
-          <p className={`shrink-0 text-end text-sm font-bold tabular-nums ${counterTone}`} aria-live="polite">
-            {t("counter", { selected: summary.selected, included: summary.included, category: tc(`${category}.plural`) })}
-            {summary.provisional && <span className="block text-[10px] font-semibold text-amber-700">{t("provisional")}</span>}
+          <p className="t-small mt-1 text-mute">
+            {summary.extraSlotFee !== null
+              ? t("extraRule", { price: formatMAD(summary.extraSlotFee, locale), included: summary.included })
+              : t("blockedRule", { included: summary.included })}
+            {summary.provisional && <span className="text-amber-700"> · {t("provisional")}</span>}
           </p>
-        </div>
-        <p className="px-4 text-xs text-mute sm:px-5">
-          {summary.extraSlotFee !== null
-            ? t("extraRule", { price: formatMAD(summary.extraSlotFee, locale), included: summary.included })
-            : t("blockedRule", { included: summary.included })}
-        </p>
-
-        {(category === "ingredient" || category === "topping") && (
-          <div className="px-4 pt-3 sm:px-5">
-            <label className="relative block">
+          {searchable && searchOpen && (
+            <label className="rise relative mt-3 block">
               <span className="sr-only">{t("search")}</span>
-              <Search size={16} className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-mute" aria-hidden />
+              <Search size={17} className="pointer-events-none absolute start-4 top-1/2 -translate-y-1/2 text-mute" aria-hidden />
               <input
                 type="search"
+                autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t("searchPlaceholder")}
-                className="h-10 w-full rounded-full bg-stone/70 pe-9 ps-9 text-sm outline-none ring-leaf transition focus:bg-white focus:ring-2"
+                className="field mt-0 min-h-12 ps-11"
               />
-              {query && (
-                <button type="button" onClick={() => setQuery("")} className="absolute end-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full text-mute hover:bg-line" aria-label={t("clearSearch")}>
-                  <X size={14} aria-hidden />
-                </button>
-              )}
             </label>
-          </div>
-        )}
+          )}
+          {category === "topping" && !query && (
+            <div className="no-scrollbar -mx-5 mt-3 flex gap-1.5 overflow-x-auto px-5 lg:-mx-6 lg:px-6" role="group" aria-label={t("groupsNav")}>
+              {(["all", ...TOPPING_GROUPS.map((g) => g.id)] as const).map((g) => {
+                const label = g === "all" ? t("groupAll") : TOPPING_GROUPS.find((x) => x.id === g)!.name[locale];
+                return (
+                  <button
+                    key={g}
+                    type="button"
+                    aria-pressed={group === g}
+                    onClick={() => {
+                      setGroup(g);
+                      listRef.current?.scrollTo({ top: 0 });
+                    }}
+                    className={`h-9 shrink-0 rounded-full px-3.5 text-[13px] font-medium transition-colors ${
+                      group === g ? "bg-ink text-white" : "bg-stone/70 text-ink-soft hover:bg-stone"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
-        <div ref={listRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-28 pt-3 sm:px-4 lg:pb-6">
-          {category === "topping" && !query ? (
-            TOPPING_GROUPS.map((g) => {
-              const groupItems = items.filter((i) => i.group === g.id);
-              return (
-                <div key={g.id} className="mb-4">
-                  <h3 className="sticky top-0 z-10 -mx-1 mb-1 bg-white/95 px-2 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-mute backdrop-blur">
-                    {g.name[locale]}
-                    {g.id === "fruits" && <span className="ms-1 font-semibold normal-case tracking-normal">· {t("seasonal")}</span>}
-                  </h3>
-                  <ChipGrid items={groupItems} locale={locale} selection={selection} extraIds={extraIds} onToggle={toggle} />
-                </div>
-              );
-            })
+        <div
+          ref={listRef}
+          onScroll={(e) => setCompact(e.currentTarget.scrollTop > 24)}
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain border-t border-line/70 px-3 pb-[calc(112px+var(--safe-bottom))] pt-4 [@media(max-height:700px)]:pb-[calc(84px+var(--safe-bottom))] sm:px-4 lg:px-5 lg:pb-8"
+        >
+          {category === "topping" && !query && group === "all" ? (
+            TOPPING_GROUPS.map((g) => (
+              <div key={g.id} className="mb-5">
+                <h3 className="t-eyebrow mb-2 px-2 text-mute">
+                  {g.name[locale]}
+                  {g.id === "fruits" && <span className="ms-1 normal-case tracking-normal">· {t("seasonal")}</span>}
+                </h3>
+                <ChipGrid items={items.filter((i) => i.group === g.id)} locale={locale} selection={selection} extraIds={extraIds} onToggle={toggle} />
+              </div>
+            ))
           ) : items.length ? (
             <ChipGrid items={items} locale={locale} selection={selection} extraIds={extraIds} onToggle={toggle} />
           ) : (
-            <p className="py-10 text-center text-sm text-mute">{t("noResults")}</p>
+            <p className="t-body py-12 text-center text-mute">{t("noResults")}</p>
           )}
         </div>
       </section>
 
-      {/* Desktop summary */}
-      <aside className="hidden min-h-0 flex-col border-s border-line bg-white lg:order-3 lg:flex" aria-label={t("summaryTitle")}>
+      {/* Desktop summary column */}
+      <aside className="hidden min-h-0 flex-col bg-cream shadow-[-1px_0_0_var(--color-line)] lg:order-3 lg:flex" aria-label={t("summaryTitle")}>
         <div className="min-h-0 flex-1 overflow-y-auto p-6">
           <Summary formula={formula} selection={selection} breakdown={breakdown} onRemove={removeItem} onStep={goToStep} onChangeFormula={() => setStage("formula")} />
         </div>
-        <div className="border-t border-line p-5">
-          <PriceAndCta total={breakdown.total} label={nextLabel} caption={nextCaption} onNext={next} flashKey={flashKey} delta={lastDelta} onBack={step > 0 ? () => goToStep(step - 1) : undefined} />
-        </div>
+        <div className="border-t border-line p-5">{cta}</div>
       </aside>
 
-      {/* Mobile bottom bar */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 backdrop-blur lg:hidden">
-        <button type="button" onClick={() => setSummaryOpen(true)} className="mb-2 flex w-full items-center justify-between text-xs font-semibold text-ink-soft" aria-haspopup="dialog">
-          <span className="truncate">
-            {formula.name[locale]} · {t("itemsCount", { count: Object.values(selection).flat().length })}
-          </span>
-          <span className="inline-flex items-center gap-1 text-ink">
+      {/* Mobile action bar (thumb zone) */}
+      <div className="fixed inset-x-0 bottom-0 z-30 bg-paper/88 px-4 pb-[max(12px,var(--safe-bottom))] pt-3 shadow-[0_-1px_0_var(--color-line)] backdrop-blur-xl lg:hidden">
+        <button
+          type="button"
+          onClick={() => setSummaryOpen(true)}
+          className="t-small mb-2 flex w-full items-center justify-between gap-3 px-1 text-ink-soft [@media(max-height:700px)]:hidden"
+          aria-haspopup="dialog"
+        >
+          <span className="truncate">{t("itemsCount", { count: itemCount })}</span>
+          <span className="inline-flex shrink-0 items-center gap-1 font-medium text-ink">
             {t("details")} <ChevronDown size={14} className="rotate-180" aria-hidden />
           </span>
         </button>
-        <PriceAndCta total={breakdown.total} label={nextLabel} caption={nextCaption} onNext={next} flashKey={flashKey} delta={lastDelta} onBack={step > 0 ? () => goToStep(step - 1) : undefined} />
+        {cta}
       </div>
 
       {summaryOpen && (
-        <div className="fixed inset-0 z-50 flex items-end bg-ink/40 backdrop-blur-sm lg:hidden" role="dialog" aria-modal="true" aria-label={t("summaryTitle")} onClick={() => setSummaryOpen(false)}>
-          <div className="rise max-h-[80dvh] w-full overflow-y-auto rounded-t-[28px] bg-white p-5 pb-8" onClick={(e) => e.stopPropagation()}>
-            <div className="mb-3 flex items-center justify-between">
-              <span className="mx-auto h-1.5 w-10 rounded-full bg-line" aria-hidden />
-            </div>
+        <div className="fixed inset-0 z-50 flex items-end bg-ink/35 backdrop-blur-[2px] lg:hidden" role="dialog" aria-modal="true" aria-label={t("summaryTitle")} onClick={() => setSummaryOpen(false)}>
+          <div
+            className="sheet-in max-h-[86dvh] w-full overflow-y-auto rounded-t-[var(--radius-sheet)] bg-cream px-5 pb-[calc(20px+var(--safe-bottom))] pt-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span className="mx-auto mb-4 block h-1 w-10 rounded-full bg-line" aria-hidden />
             <Summary
               formula={formula}
               selection={selection}
@@ -408,7 +498,7 @@ export function Builder({ initialFormulaId, editId }: { initialFormulaId?: strin
                 setStage("formula");
               }}
             />
-            <button type="button" onClick={() => setSummaryOpen(false)} className="mt-6 h-12 w-full rounded-full bg-stone font-bold">
+            <button type="button" onClick={() => setSummaryOpen(false)} className="btn btn-ghost mt-5 w-full">
               {t("close")}
             </button>
           </div>
@@ -419,15 +509,15 @@ export function Builder({ initialFormulaId, editId }: { initialFormulaId?: strin
         <div
           key={notice.key}
           role="status"
-          className={`rise fixed inset-x-4 bottom-[150px] z-40 mx-auto flex max-w-md items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold shadow-2xl lg:bottom-8 ${
-            notice.tone === "warn" ? "bg-ink text-white" : "bg-white text-ink ring-1 ring-line"
+          className={`rise fixed inset-x-4 bottom-[calc(132px+var(--safe-bottom))] z-40 mx-auto flex max-w-md items-center gap-3 rounded-2xl px-4 py-3 text-[14px] font-medium shadow-[var(--shadow-lift)] lg:bottom-8 ${
+            notice.tone === "warn" ? "bg-ink text-white" : "bg-cream text-ink ring-1 ring-line"
           }`}
         >
           <span className="flex-1">{notice.text}</span>
           {notice.action && (
             <button
               type="button"
-              className="shrink-0 rounded-full bg-leaf px-3 py-1.5 text-xs font-bold text-white"
+              className="shrink-0 rounded-full bg-leaf-deep px-3 py-2 text-[12.5px] font-semibold text-white"
               onClick={() => {
                 notice.action?.run();
                 setNotice(null);
@@ -436,7 +526,7 @@ export function Builder({ initialFormulaId, editId }: { initialFormulaId?: strin
               {notice.action.label}
             </button>
           )}
-          <button type="button" onClick={() => setNotice(null)} aria-label={t("close")} className="shrink-0 opacity-60 hover:opacity-100">
+          <button type="button" onClick={() => setNotice(null)} aria-label={t("close")} className="grid h-8 w-8 shrink-0 place-items-center opacity-60 hover:opacity-100">
             <X size={16} aria-hidden />
           </button>
         </div>
@@ -461,7 +551,7 @@ function ChipGrid({
   onToggle: (item: MenuItem, el: HTMLElement | null) => void;
 }) {
   return (
-    <div className="grid grid-cols-4 gap-x-1 gap-y-3 sm:grid-cols-5 lg:grid-cols-4">
+    <div className="grid grid-cols-4 gap-x-1.5 gap-y-4 max-[359px]:grid-cols-3 sm:grid-cols-5 lg:grid-cols-4 xl:grid-cols-4">
       {items.map((item) => (
         <IngredientChip
           key={item.id}
@@ -476,54 +566,69 @@ function ChipGrid({
   );
 }
 
-function StepTabs({ step, breakdown, onStep }: { step: number; breakdown: ReturnType<typeof priceSalad>; onStep: (i: number) => void }) {
+function Counter({
+  selected,
+  included,
+  extra,
+  blocked,
+  provisional,
+}: {
+  selected: number;
+  included: number;
+  extra: number;
+  blocked: boolean;
+  provisional: boolean;
+}) {
+  const t = useTranslations("builder");
+  const full = selected >= included && included > 0;
+  return (
+    <p
+      aria-live="polite"
+      className={`t-label t-num inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 transition-colors duration-300 ${
+        extra > 0 && blocked ? "bg-red-50 text-red-700" : full ? "bg-mist text-leaf-ink" : "bg-stone/70 text-ink-soft"
+      }`}
+    >
+      <span className="flex gap-[3px]" aria-hidden>
+        {Array.from({ length: Math.min(included, 12) }, (_, i) => (
+          <span key={i} className={`h-1.5 w-1.5 rounded-full transition-colors duration-300 ${i < selected ? "bg-leaf-deep" : "bg-ink/15"}`} />
+        ))}
+      </span>
+      <span>
+        {t("counterShort", { selected, included })}
+        {provisional && <span className="text-amber-700">*</span>}
+        {extra > 0 && !blocked && <span className="font-semibold"> · {t("counterExtra", { count: extra })}</span>}
+      </span>
+    </p>
+  );
+}
+
+function StepProgress({ step, breakdown, onStep }: { step: number; breakdown: ReturnType<typeof priceSalad>; onStep: (i: number) => void }) {
   const tc = useTranslations("categories");
   const t = useTranslations("builder");
   return (
-    <nav
-      aria-label={t("stepsNav")}
-      className="no-scrollbar flex shrink-0 gap-1.5 overflow-x-auto border-b border-line px-3 py-2.5 [mask-image:linear-gradient(to_right,transparent,#000_12px,#000_calc(100%-24px),transparent)] sm:px-4"
-    >
+    <nav aria-label={t("stepsNav")} className="flex gap-1 px-3 pb-1.5 sm:px-5">
       {CATEGORIES.map((c, i) => {
-        const s = breakdown.categories[c];
         const active = i === step;
-        const done = s.selected > 0;
+        const done = breakdown.categories[c].selected > 0;
         return (
           <button
             key={c}
             type="button"
             onClick={() => onStep(i)}
             aria-current={active ? "step" : undefined}
-            className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[13px] font-bold transition-colors ${
-              active ? "bg-ink text-white" : done ? "bg-mist text-leaf-deep" : "bg-stone/70 text-ink-soft hover:bg-stone"
-            }`}
+            aria-label={t("stepAria", { n: i + 1, name: tc(`${c}.plural`) })}
+            className="group flex h-6 flex-1 flex-col justify-center"
           >
-            {tc(`${c}.short`)}
-            <span className={`tabular-nums ${active ? "text-white/70" : "opacity-70"}`}>
-              {s.selected}/{s.included}
-            </span>
+            <span
+              className={`block h-[3px] w-full rounded-full transition-colors duration-500 ${
+                active ? "bg-ink" : done ? "bg-leaf-deep/70" : "bg-ink/12 group-hover:bg-ink/25"
+              }`}
+            />
+            <span className={`mt-1 hidden truncate text-[11px] font-medium lg:block ${active ? "text-ink" : "text-mute"}`}>{tc(`${c}.short`)}</span>
           </button>
         );
       })}
     </nav>
-  );
-}
-
-function ProgressDots({ step, breakdown, onStep, className }: { step: number; breakdown: ReturnType<typeof priceSalad>; onStep: (i: number) => void; className?: string }) {
-  const tc = useTranslations("categories");
-  return (
-    <div className={`flex items-center gap-1.5 ${className ?? ""}`} aria-hidden>
-      {CATEGORIES.map((c, i) => (
-        <button
-          key={c}
-          type="button"
-          tabIndex={-1}
-          title={tc(`${c}.short`)}
-          onClick={() => onStep(i)}
-          className={`h-1.5 rounded-full transition-all duration-500 ${i === step ? "w-7 bg-ink" : breakdown.categories[c].selected ? "w-3 bg-leaf" : "w-3 bg-ink/15"}`}
-        />
-      ))}
-    </div>
   );
 }
 
@@ -549,62 +654,135 @@ function PriceAndCta({
   return (
     <div className="flex items-center gap-2">
       {onBack && (
-        <button type="button" onClick={onBack} aria-label={t("previous")} className="grid h-13 w-13 shrink-0 place-items-center rounded-full bg-stone text-ink transition hover:bg-line">
-          <ArrowLeft size={18} className="flip-rtl" aria-hidden />
+        <button type="button" onClick={onBack} aria-label={t("previous")} className="icon-btn h-14 w-14 shrink-0 bg-cream shadow-[inset_0_0_0_1px_var(--color-line)] max-[359px]:w-12">
+          <ArrowLeft size={20} strokeWidth={1.75} className="flip-rtl" aria-hidden />
         </button>
       )}
       <button
         type="button"
         onClick={onNext}
-        className="group relative flex h-13 min-w-0 flex-1 items-center justify-between gap-3 rounded-full bg-leaf pe-2 ps-5 text-white shadow-[0_12px_28px_-12px_rgba(95,154,31,0.9)] transition hover:bg-leaf-deep active:scale-[0.99]"
+        className="group relative flex h-14 min-w-0 flex-1 items-center gap-3 rounded-full bg-leaf-deep pe-4 ps-5 max-[359px]:gap-2 max-[359px]:pe-3 max-[359px]:ps-4 text-white shadow-[0_14px_28px_-16px_rgba(61,110,16,0.95)] transition-[transform,background-color] duration-200 hover:bg-leaf-ink active:scale-[0.985]"
       >
-        <span className="min-w-0 text-start leading-tight">
-          <span className="block text-[11px] font-semibold opacity-80">{caption}</span>
-          <span className="block truncate text-[15px] font-extrabold">{label}</span>
-        </span>
-        <span className="relative flex items-center gap-2">
+        <span className="relative shrink-0 text-start">
           {flashKey > 0 && delta !== 0 && (
-            <span key={flashKey} className="pop-delta absolute -top-8 end-0 whitespace-nowrap rounded-full bg-ink px-2 py-0.5 text-[11px] font-bold text-white" aria-hidden>
+            <span key={flashKey} className="pop-delta t-num absolute -top-9 start-0 whitespace-nowrap rounded-full bg-ink px-2.5 py-1 text-[12px] font-semibold text-white" aria-hidden>
               {formatDelta(delta, locale)}
             </span>
           )}
-          <span className="whitespace-nowrap rounded-full bg-white/20 px-3 py-2 text-[15px] font-extrabold tabular-nums" aria-live="polite">
-            {formatMAD(total, locale)}
-          </span>
-          <ArrowRight size={18} className="flip-rtl me-1 transition-transform group-hover:translate-x-0.5" aria-hidden />
+          <AnimatedPrice value={total} className="t-price block text-[17px] leading-none" />
         </span>
+        <span className="h-7 w-px shrink-0 bg-white/25" aria-hidden />
+        <span className="min-w-0 flex-1 text-start leading-tight">
+          <span className="block truncate text-[15.5px] font-semibold">{label}</span>
+          <span className="block truncate text-[11.5px] font-medium text-white/70 max-[359px]:hidden">{caption}</span>
+        </span>
+        <ArrowRight size={20} className="flip-rtl shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden />
       </button>
     </div>
   );
 }
 
-function BuilderTopBar({ className, formulaName, onFormula }: { className?: string; formulaName?: string; onFormula?: () => void }) {
+function BuilderTopBar({
+  className,
+  formulaName,
+  onFormula,
+  step,
+  breakdown,
+  onStep,
+}: {
+  className?: string;
+  formulaName?: string;
+  onFormula?: () => void;
+  step?: number;
+  breakdown?: ReturnType<typeof priceSalad>;
+  onStep?: (i: number) => void;
+}) {
   const t = useTranslations("builder");
   return (
-    <header className={`z-20 flex h-14 shrink-0 items-center justify-between gap-2 border-b border-line bg-paper/90 px-3 backdrop-blur sm:px-5 ${className ?? ""}`}>
-      <div className="flex min-w-0 items-center gap-2">
-        <Link href="/" aria-label={t("exit")} className="grid h-9 w-9 shrink-0 place-items-center rounded-full hover:bg-stone">
-          <ArrowLeft size={18} className="flip-rtl" aria-hidden />
+    <header className={`z-20 shrink-0 bg-paper/90 backdrop-blur-xl ${className ?? ""}`}>
+      <div className="flex h-14 items-center justify-between gap-1 px-2 sm:px-4">
+        <Link href="/" aria-label={t("exit")} className="icon-btn shrink-0">
+          <ArrowLeft size={20} strokeWidth={1.75} className="flip-rtl" aria-hidden />
         </Link>
-        <span className="hidden sm:block">
-          <Logo />
-        </span>
+        {formulaName && onFormula ? (
+          <button
+            type="button"
+            onClick={onFormula}
+            className="inline-flex h-11 min-w-0 items-center gap-1 rounded-full px-3 transition-colors hover:bg-stone"
+            aria-label={t("changeFormulaAria", { name: formulaName })}
+          >
+            <span className="t-title truncate text-[15px]">
+              {/* Narrow phones: only the distinctive word ("Prestige"). */}
+              <span className="max-[379px]:hidden">{formulaName.split(" ")[0]} </span>
+              {formulaName.split(" ").slice(1).join(" ")}
+            </span>
+            <ChevronDown size={16} className="shrink-0 text-mute" aria-hidden />
+          </button>
+        ) : (
+          <span />
+        )}
+        <div className="flex shrink-0 items-center">
+          <LanguageSwitcher />
+          <CartButton />
+        </div>
       </div>
-      {formulaName && onFormula && (
-        <button
-          type="button"
-          onClick={onFormula}
-          className="inline-flex min-w-0 items-center gap-1.5 rounded-full bg-white px-3.5 py-1.5 text-[13px] font-bold shadow-sm ring-1 ring-line hover:ring-leaf"
-          aria-label={t("changeFormulaAria", { name: formulaName })}
-        >
-          <span className="truncate">{formulaName}</span>
-          <ChevronDown size={14} aria-hidden />
-        </button>
-      )}
-      <div className="flex shrink-0 items-center gap-2">
-        <LanguageSwitcher />
-        <CartButton />
-      </div>
+      {breakdown && step !== undefined && onStep ? <StepProgress step={step} breakdown={breakdown} onStep={onStep} /> : <div className="h-px bg-line" />}
     </header>
   );
+}
+
+// ---------------------------------------------------------------------------
+// Session draft: keeps the composition across a language switch or reload.
+
+const DRAFT_KEY = "bsb-builder-draft";
+const DRAFT_TTL = 6 * 60 * 60 * 1000;
+
+interface Draft {
+  formulaId: string;
+  selection: Selection;
+  step: number;
+  stage: Stage;
+  name: string;
+  editing: string | null;
+}
+
+function readDraft(): Draft | null {
+  try {
+    const raw = sessionStorage.getItem(DRAFT_KEY);
+    if (!raw) return null;
+    const d = JSON.parse(raw) as Draft & { at: number };
+    if (!d || Date.now() - d.at > DRAFT_TTL || !FORMULAS_BY_ID[d.formulaId]) return null;
+    const selection = emptySelection();
+    for (const c of CATEGORIES) {
+      const ids = d.selection?.[c];
+      if (Array.isArray(ids)) selection[c] = ids.filter((id) => ITEMS_BY_ID[id]?.category === c);
+    }
+    const stage: Stage = d.stage === "reveal" || d.stage === "formula" ? d.stage : "build";
+    return {
+      formulaId: d.formulaId,
+      selection,
+      step: Math.min(CATEGORIES.length - 1, Math.max(0, Math.floor(d.step) || 0)),
+      stage,
+      name: typeof d.name === "string" ? d.name.slice(0, 40) : "",
+      editing: typeof d.editing === "string" ? d.editing : null,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function writeDraft(d: Draft) {
+  try {
+    sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ ...d, at: Date.now() }));
+  } catch {
+    // Private mode: the builder still works, it just won't survive a reload.
+  }
+}
+
+function clearDraft() {
+  try {
+    sessionStorage.removeItem(DRAFT_KEY);
+  } catch {
+    // ignore
+  }
 }

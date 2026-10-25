@@ -5,7 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useTransition } from "react";
 
-export function LanguageSwitcher({ tone = "light" }: { tone?: "light" | "dark" }) {
+/** Compact language toggle. The builder keeps its draft across the switch (see Builder). */
+export function LanguageSwitcher() {
   const locale = useLocale();
   const t = useTranslations("nav");
   const router = useRouter();
@@ -26,11 +27,11 @@ export function LanguageSwitcher({ tone = "light" }: { tone?: "light" | "dark" }
           router.replace(qs ? `${pathname}?${qs}` : pathname, { locale: other, scroll: false });
         })
       }
-      className={`inline-flex h-9 items-center gap-1 rounded-full px-3 text-sm font-semibold transition-colors ${
-        tone === "dark" ? "bg-white/10 text-white hover:bg-white/20" : "bg-stone text-ink hover:bg-line"
+      className={`inline-flex h-11 min-w-11 items-center justify-center rounded-full px-3 text-[14px] font-medium text-ink transition-colors hover:bg-stone disabled:opacity-50 ${
+        other === "ar" ? "font-[family-name:var(--font-plex-arabic)] text-[15px]" : ""
       }`}
     >
-      {other === "ar" ? "العربية" : "Français"}
+      {other === "ar" ? "العربية" : "FR"}
     </button>
   );
 }

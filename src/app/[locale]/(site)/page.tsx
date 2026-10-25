@@ -16,90 +16,88 @@ export default function HomePage({ params }: PageProps<"/[locale]">) {
 
   return (
     <main>
-      {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="mx-auto grid max-w-7xl items-center gap-6 px-4 pb-12 pt-6 sm:px-6 md:grid-cols-[1fr_1.05fr] md:pb-20 md:pt-14">
-          <div className="order-2 md:order-1">
-            <p className="rise text-sm font-bold uppercase tracking-[0.2em] text-leaf-deep">{t("eyebrow")}</p>
-            <h1 className="display rise mt-3 text-[2.75rem] leading-[1.02] sm:text-6xl lg:text-7xl" style={{ animationDelay: "80ms" }}>
-              {t("titleA")}
-              <br />
-              <em className="text-leaf-deep">{t("titleB")}</em>
+      {/* Hero: headline → promise → action → the bowl. */}
+      <section className="relative">
+        <div className="mx-auto grid max-w-7xl items-center gap-2 px-5 pt-7 sm:px-6 md:grid-cols-[1fr_1fr] md:gap-10 md:pb-16 md:pt-16 lg:grid-cols-[1.05fr_1fr]">
+          <div>
+            <p className="rise t-eyebrow text-leaf-deep">{t("eyebrow")}</p>
+            <h1 className="rise mt-4" style={{ animationDelay: "60ms" }}>
+              <span className="t-display block">{t("titleA")}</span>
+              <span className="t-display-sans mt-1 block text-leaf-deep">{t("titleB")}</span>
             </h1>
-            <p className="rise mt-5 max-w-md text-lg text-ink-soft" style={{ animationDelay: "160ms" }}>
+            <p className="rise t-body mt-5 max-w-[30ch] text-ink-soft sm:max-w-md" style={{ animationDelay: "120ms" }}>
               {t("subtitle")}
             </p>
-            <div className="rise mt-8 flex flex-col gap-3 sm:flex-row" style={{ animationDelay: "240ms" }}>
-              <Link
-                href="/composer"
-                className="group inline-flex h-14 items-center justify-center gap-2 rounded-full bg-leaf px-7 text-base font-extrabold text-white shadow-[0_16px_34px_-14px_rgba(95,154,31,0.95)] transition hover:bg-leaf-deep"
-              >
+            <div className="rise mt-7 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3 md:flex-col md:items-stretch lg:flex-row lg:items-center" style={{ animationDelay: "180ms" }}>
+              <Link href="/composer" className="btn btn-leaf group min-h-14 text-[16px] shadow-[0_14px_30px_-16px_rgba(79,138,23,0.9)]">
                 {t("cta")}
                 <ArrowRight size={18} className="flip-rtl transition-transform group-hover:translate-x-0.5" aria-hidden />
               </Link>
-              <Link href="/#formules" className="inline-flex h-14 items-center justify-center rounded-full bg-white px-7 font-bold ring-1 ring-line transition hover:ring-ink">
+              <Link href="/#formules" className="btn min-h-12 text-ink-soft hover:text-ink sm:bg-cream sm:shadow-[inset_0_0_0_1px_var(--color-line)]">
                 {t("secondary")}
               </Link>
             </div>
-            <p className="rise mt-6 text-sm text-mute" style={{ animationDelay: "320ms" }}>
+            <p className="rise t-small mt-3 text-mute max-sm:text-center" style={{ animationDelay: "220ms" }}>
               {t("priceHint")}
             </p>
           </div>
-          <div className="relative order-1 mx-auto w-full max-w-[560px] md:order-2">
-            <div className="absolute inset-[8%] rounded-full bg-mist" aria-hidden />
+
+          <div className="relative mx-auto mt-4 w-full max-w-[min(92vw,560px)] md:mt-0">
+            <div className="absolute inset-[7%] rounded-full bg-[radial-gradient(circle,var(--color-mist),transparent_70%)]" aria-hidden />
             <Image
               src="/brand/bowl-official.webp"
               alt={t("heroAlt")}
               width={494}
               height={494}
               priority
-              sizes="(min-width: 768px) 560px, 90vw"
-              className="rise relative mx-auto w-[88%] drop-shadow-[0_40px_40px_rgba(32,36,33,0.28)]"
+              sizes="(min-width: 768px) 560px, 92vw"
+              className="rise relative mx-auto w-[84%] drop-shadow-[0_34px_34px_rgba(29,33,30,0.26)]"
+              style={{ animationDelay: "140ms" }}
             />
             <FloatingIngredients />
           </div>
         </div>
       </section>
 
-      {/* How it works */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6" aria-labelledby="how">
-        <div className="rounded-[32px] bg-white p-6 ring-1 ring-line sm:p-10">
-          <h2 id="how" className="display text-3xl sm:text-4xl">
-            {t("howTitle")}
-          </h2>
-          <ol className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
-            {CATEGORIES.map((c, i) => (
-              <li key={c} className="rise" style={{ animationDelay: `${i * 70}ms` }}>
-                <span className="grid h-10 w-10 place-items-center rounded-full bg-mist text-sm font-extrabold text-leaf-deep">{i + 1}</span>
-                <h3 className="mt-3 font-extrabold">{tb(`steps.${c}`)}</h3>
-                <p className="mt-1 text-sm text-ink-soft">{t(`how.${c}`)}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
+      {/* How it works: an editorial numbered list. */}
+      <section className="mx-auto mt-14 max-w-7xl px-5 sm:px-6 md:mt-6" aria-labelledby="how">
+        <h2 id="how" className="t-h2 max-w-[16ch]">
+          {t("howTitle")}
+        </h2>
+        <ol className="mt-6 border-t border-line md:mt-8 md:grid md:grid-cols-5 md:gap-6 md:border-t-0">
+          {CATEGORIES.map((c, i) => (
+            <li key={c} className="flex gap-4 border-b border-line py-4 md:block md:border-b-0 md:border-t md:pt-5">
+              <span className="t-num w-7 shrink-0 pt-0.5 text-[13px] font-semibold text-leaf-deep">{String(i + 1).padStart(2, "0")}</span>
+              <span className="md:mt-3 md:block">
+                <span className="t-title block">{tb(`steps.${c}`)}</span>
+                <span className="t-small mt-1 block text-ink-soft">{t(`how.${c}`)}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
       </section>
 
       {/* Formulas */}
-      <section id="formules" className="mx-auto max-w-7xl scroll-mt-20 px-4 pt-20 sm:px-6" aria-labelledby="formulas-title">
-        <p className="text-sm font-bold uppercase tracking-[0.2em] text-leaf-deep">{t("formulasEyebrow")}</p>
-        <h2 id="formulas-title" className="display mt-2 text-3xl sm:text-5xl">
+      <section id="formules" className="mx-auto max-w-7xl scroll-mt-16 px-5 pt-16 sm:px-6 md:pt-24" aria-labelledby="formulas-title">
+        <p className="t-eyebrow text-leaf-deep">{t("formulasEyebrow")}</p>
+        <h2 id="formulas-title" className="t-h2 mt-3">
           {t("formulasTitle")}
         </h2>
-        <p className="mt-3 max-w-xl text-ink-soft">{t("formulasSubtitle")}</p>
-        <div className="mt-8">
+        <p className="t-body mt-3 max-w-xl text-ink-soft">{t("formulasSubtitle")}</p>
+        <div className="mt-7">
           <FormulaCards />
         </div>
-        <p className="mt-4 text-xs text-mute">{t("previewNote")}</p>
+        <p className="t-small mt-1 text-mute">{t("previewNote")}</p>
       </section>
 
       {/* Brand band */}
-      <section className="mx-auto mt-20 max-w-7xl px-4 sm:px-6">
-        <div className="relative overflow-hidden rounded-[32px]">
-          <Image src="/brand/salad-bar.webp" alt={t("barAlt")} width={1600} height={900} sizes="(min-width: 1280px) 1240px, 100vw" className="h-[340px] w-full object-cover sm:h-[420px]" />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/30 to-transparent" />
+      <section className="mx-auto mt-16 max-w-7xl px-5 sm:px-6 md:mt-24">
+        <div className="relative overflow-hidden rounded-[var(--radius-sheet)]">
+          <Image src="/brand/salad-bar.webp" alt={t("barAlt")} width={1600} height={900} sizes="(min-width: 1280px) 1240px, 100vw" className="h-[380px] w-full object-cover sm:h-[440px]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/35 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 p-6 text-white sm:p-10">
-            <p className="display text-3xl sm:text-5xl">{t("slogan")}</p>
-            <Link href="/composer" className="mt-5 inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 font-bold text-ink hover:bg-mist">
+            <p className="t-h1 max-w-[14ch]">{t("slogan")}</p>
+            <Link href="/composer" className="btn mt-6 bg-white text-ink hover:bg-mist">
               {t("cta")}
               <ArrowRight size={16} className="flip-rtl" aria-hidden />
             </Link>

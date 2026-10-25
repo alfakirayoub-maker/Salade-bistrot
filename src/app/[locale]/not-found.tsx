@@ -6,9 +6,9 @@ export default async function NotFound() {
   return (
     <main className="grid min-h-dvh place-items-center px-6 text-center">
       <div>
-        <p className="text-sm font-bold uppercase tracking-[0.18em] text-leaf-deep">404</p>
-        <h1 className="display mt-2 text-4xl">{t("title")}</h1>
-        <Link href="/" className="mt-6 inline-flex h-12 items-center rounded-full bg-ink px-6 font-bold text-white">
+        <p className="t-eyebrow text-leaf-deep">404</p>
+        <h1 className="t-h1 mt-3">{t("title")}</h1>
+        <Link href="/" className="btn btn-primary mt-6">
           {t("back")}
         </Link>
       </div>

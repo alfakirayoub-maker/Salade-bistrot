@@ -60,59 +60,47 @@ export function Reveal({
     setAdded(true);
   };
 
+  const addLabel = added ? (editing ? t("updated") : t("added")) : editing ? t("update") : t("addToCart");
+
   return (
-    <div className="min-h-dvh bg-[radial-gradient(ellipse_at_50%_20%,#ffffff_0%,var(--color-paper)_55%,#e9efe2_100%)]">
-      <div className="mx-auto grid max-w-6xl items-center gap-6 px-4 pb-16 pt-6 lg:grid-cols-[1.1fr_1fr] lg:gap-14 lg:pt-14">
-        <div className="relative mx-auto w-[min(86vw,560px)]">
+    <div className="min-h-dvh bg-[radial-gradient(ellipse_at_50%_18%,#ffffff_0%,var(--color-paper)_58%)] pb-[calc(96px+var(--safe-bottom))] lg:pb-16">
+      <div className="mx-auto flex h-14 max-w-6xl items-center px-2 sm:px-4">
+        <button type="button" onClick={onEdit} className="inline-flex h-11 items-center gap-1.5 rounded-full px-3 text-[14px] font-medium text-ink-soft hover:bg-stone hover:text-ink">
+          <ArrowLeft size={18} strokeWidth={1.75} className="flip-rtl" aria-hidden />
+          {t("back")}
+        </button>
+      </div>
+      <div className="mx-auto grid max-w-6xl items-center gap-4 px-5 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
+        <div className="relative mx-auto w-[min(70vw,38dvh,560px)] py-3 lg:w-[min(46vw,560px)] lg:py-8">
           <SaladBowl selection={selection} mode="static" celebrate label={t("bowlAlt")} />
         </div>
 
-        <div ref={textRef}>
-          <button type="button" onClick={onEdit} className="mb-4 inline-flex items-center gap-1.5 text-sm font-bold text-ink-soft hover:text-ink">
-            <ArrowLeft size={16} className="flip-rtl" aria-hidden />
-            {t("back")}
-          </button>
-          <p className="text-sm font-bold uppercase tracking-[0.18em] text-leaf-deep">{formula.name[locale]}</p>
-          <h1 className="display mt-2 text-4xl leading-[1.05] sm:text-5xl">{t("title")}</h1>
+        <div ref={textRef} className="lg:max-w-md">
+          <p className="t-eyebrow text-leaf-deep">{formula.name[locale]}</p>
+          <h1 className="t-h1 mt-3">{t("title")}</h1>
 
-          <label className="mt-5 block">
-            <span className="text-xs font-bold uppercase tracking-[0.12em] text-mute">{t("nameLabel")}</span>
-            <input
-              value={name}
-              maxLength={40}
-              onChange={(e) => onName(e.target.value)}
-              placeholder={t("namePlaceholder")}
-              className="mt-1.5 h-11 w-full rounded-xl bg-white px-4 text-[15px] font-semibold outline-none ring-1 ring-line focus:ring-2 focus:ring-leaf"
-            />
+          <label className="mt-6 block">
+            <span className="t-label text-ink-soft">{t("nameLabel")}</span>
+            <input value={name} maxLength={40} onChange={(e) => onName(e.target.value)} placeholder={t("namePlaceholder")} className="field" />
           </label>
 
-          <ul className="mt-5 grid gap-2 text-sm">
+          <dl className="mt-6 divide-y divide-line border-y border-line">
             {CATEGORIES.filter((c) => selection[c].length).map((c) => (
-              <li key={c} className="flex gap-3">
-                <span className="w-28 shrink-0 font-bold text-ink-soft">{tc(`${c}.plural`)}</span>
-                <span>{selection[c].map((id) => ITEMS_BY_ID[id]?.name[locale]).join(" · ")}</span>
-              </li>
+              <div key={c} className="flex gap-4 py-3 text-[14px]">
+                <dt className="w-24 shrink-0 font-medium text-mute">{tc(`${c}.plural`)}</dt>
+                <dd className="min-w-0 text-ink">{selection[c].map((id) => ITEMS_BY_ID[id]?.name[locale]).join(" · ")}</dd>
+              </div>
             ))}
-          </ul>
+          </dl>
 
-          <div className="mt-5 rounded-2xl bg-white/80 p-4 ring-1 ring-line">
+          <div className="mt-5 rounded-2xl bg-white p-4 shadow-[inset_0_0_0_1px_var(--color-line)]">
             <PriceLines formula={formula} breakdown={breakdown} />
           </div>
 
-          <div className="mt-6 grid gap-2 sm:grid-cols-[1fr_auto]">
-            <button
-              type="button"
-              onClick={add}
-              disabled={added}
-              className={`inline-flex h-14 items-center justify-center gap-2 rounded-full text-base font-extrabold text-white shadow-[0_14px_30px_-12px_rgba(95,154,31,0.9)] transition-colors ${
-                added ? "bg-leaf-deep" : "bg-leaf hover:bg-leaf-deep"
-              }`}
-            >
-              {added ? <Check size={20} aria-hidden /> : <ShoppingBag size={20} aria-hidden />}
-              {added ? (editing ? t("updated") : t("added")) : editing ? t("update") : t("addToCart")}
-              <span className="ms-1 rounded-full bg-white/20 px-2.5 py-1 text-sm tabular-nums">{formatMAD(breakdown.total, locale)}</span>
-            </button>
-            <button type="button" onClick={onEdit} className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-white px-6 font-bold ring-1 ring-line hover:ring-ink">
+          {/* Desktop actions (mobile uses the sticky bar below). */}
+          <div className="mt-6 hidden gap-2 lg:grid lg:grid-cols-[1fr_auto]">
+            <AddButton added={added} label={addLabel} total={formatMAD(breakdown.total, locale)} onClick={add} />
+            <button type="button" onClick={onEdit} className="btn btn-ghost min-h-14">
               <Pencil size={16} aria-hidden />
               {t("modify")}
             </button>
@@ -120,10 +108,10 @@ export function Reveal({
 
           {added && (
             <div className="rise mt-4 grid gap-2 sm:grid-cols-2" role="status">
-              <Link href="/panier" className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-ink font-bold text-white">
+              <Link href="/panier" className="btn btn-primary">
                 {t("viewCart")}
               </Link>
-              <button type="button" onClick={onRestart} className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-stone font-bold hover:bg-line">
+              <button type="button" onClick={onRestart} className="btn btn-ghost">
                 <Plus size={16} aria-hidden />
                 {t("another")}
               </button>
@@ -131,6 +119,32 @@ export function Reveal({
           )}
         </div>
       </div>
+
+      <div className="fixed inset-x-0 bottom-0 z-30 flex gap-2 bg-paper/88 px-4 pb-[max(12px,var(--safe-bottom))] pt-3 shadow-[0_-1px_0_var(--color-line)] backdrop-blur-xl lg:hidden">
+        <button type="button" onClick={onEdit} aria-label={t("modify")} className="icon-btn h-14 w-14 shrink-0 bg-cream shadow-[inset_0_0_0_1px_var(--color-line)]">
+          <Pencil size={18} strokeWidth={1.75} aria-hidden />
+        </button>
+        <AddButton added={added} label={addLabel} total={formatMAD(breakdown.total, locale)} onClick={add} />
+      </div>
     </div>
+  );
+}
+
+function AddButton({ added, label, total, onClick }: { added: boolean; label: string; total: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={added}
+      className={`flex h-14 min-w-0 flex-1 items-center justify-between gap-3 rounded-full pe-5 ps-5 text-white transition-[transform,background-color] duration-300 active:scale-[0.985] ${
+        added ? "bg-ink" : "bg-leaf-deep shadow-[0_14px_28px_-16px_rgba(61,110,16,0.95)] hover:bg-leaf-ink"
+      }`}
+    >
+      <span className="flex min-w-0 items-center gap-2 text-[15.5px] font-semibold">
+        {added ? <Check size={19} className="shrink-0" aria-hidden /> : <ShoppingBag size={19} strokeWidth={1.75} className="shrink-0" aria-hidden />}
+        <span className="truncate">{label}</span>
+      </span>
+      <span className="t-price shrink-0 text-[16px]">{total}</span>
+    </button>
   );
 }

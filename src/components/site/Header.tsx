@@ -13,14 +13,10 @@ export function CartButton() {
   const lines = useCart();
   const count = lines.reduce((s, l) => s + l.quantity, 0);
   return (
-    <Link
-      href="/panier"
-      aria-label={t("cartCount", { count })}
-      className="relative grid h-9 w-9 place-items-center rounded-full bg-stone text-ink transition-colors hover:bg-line"
-    >
-      <ShoppingBag size={18} aria-hidden />
+    <Link href="/panier" aria-label={t("cartCount", { count })} className="icon-btn relative text-ink">
+      <ShoppingBag size={20} strokeWidth={1.75} aria-hidden />
       {count > 0 && (
-        <span className="absolute -end-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-leaf px-1 text-[11px] font-bold text-white ring-2 ring-paper">
+        <span className="t-num absolute end-0.5 top-0.5 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-leaf-deep px-1 text-[10.5px] font-semibold text-white ring-2 ring-paper">
           {count}
         </span>
       )}
@@ -31,10 +27,10 @@ export function CartButton() {
 export function Logo({ compact = false }: { compact?: boolean }) {
   const t = useTranslations("brand");
   return (
-    <Link href="/" className="flex items-center gap-2.5" aria-label={t("home")}>
-      <Image src="/brand/logo-mark.png" alt="" width={372} height={450} className="h-9 w-auto" priority />
+    <Link href="/" className="flex shrink-0 items-center gap-2" aria-label={t("home")}>
+      <Image src="/brand/logo-mark.png" alt="" width={372} height={450} className="h-8 w-auto" priority />
       {!compact && (
-        <span className="text-[15px] font-extrabold uppercase leading-none tracking-[0.12em] text-ink" dir="ltr">
+        <span className="text-[13px] font-semibold uppercase leading-none tracking-[0.14em] text-ink max-[359px]:hidden" dir="ltr">
           Bistrot <span className="text-leaf-deep">Salad</span> Bar
         </span>
       )}
@@ -45,27 +41,28 @@ export function Logo({ compact = false }: { compact?: boolean }) {
 export function Header() {
   const t = useTranslations("nav");
   return (
-    <header className="sticky top-0 z-40 border-b border-line/70 bg-paper/85 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
+    <header className="sticky top-0 z-40 bg-paper/80 backdrop-blur-xl backdrop-saturate-150">
+      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4 sm:h-16 sm:px-6">
         <Logo />
-        <nav className="hidden items-center gap-7 text-sm font-semibold text-ink-soft md:flex" aria-label={t("main")}>
-          <Link href="/composer" className="hover:text-ink">
+        <nav className="hidden items-center gap-8 text-[14px] font-medium text-ink-soft md:flex" aria-label={t("main")}>
+          <Link href="/composer" className="transition-colors hover:text-ink">
             {t("compose")}
           </Link>
-          <Link href="/menu" className="hover:text-ink">
+          <Link href="/menu" className="transition-colors hover:text-ink">
             {t("menu")}
           </Link>
-          <Link href="/#formules" className="hover:text-ink">
+          <Link href="/#formules" className="transition-colors hover:text-ink">
             {t("formulas")}
           </Link>
         </nav>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <Suspense>
             <LanguageSwitcher />
           </Suspense>
           <CartButton />
         </div>
       </div>
+      <div className="h-px bg-line/70" />
     </header>
   );
 }

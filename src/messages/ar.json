@@ -103,7 +103,7 @@
   "formulaTitle": "اختر عرضك",
   "formulaSubtitle": "العرض يحدد ما هو مشمول، ويمكنك تغييره في أي وقت دون أن تفقد تركيبتك.",
   "backToBuilder": "العودة إلى سلطتي",
-  "finish": "إنهاء سلطتي",
+  "finish": "إنهاء",
   "bowlRegion": "سلطتك",
   "emptyBowl": "اختر قاعدة سلطتك",
   "bowlAlt": "معاينة سلطتك أثناء التركيب",
@@ -127,8 +127,8 @@
   "seasonal": "حسب الموسم",
   "noResults": "لا توجد نتائج.",
   "summaryTitle": "تركيبتك",
-  "itemsCount": "{count, plural, =0 {لا عناصر} one {عنصر واحد} two {عنصران} few {# عناصر} many {# عنصرًا} other {# عنصر}}",
-  "details": "التفاصيل",
+  "itemsCount": "{count, plural, =0 {سلطتك فارغة} one {عنصر واحد في سلطتك} two {عنصران في سلطتك} few {# عناصر في سلطتك} many {# عنصرًا في سلطتك} other {# عنصر في سلطتك}}",
+  "details": "الملخص",
   "close": "إغلاق",
   "stepsNav": "خطوات التركيب",
   "previous": "الخطوة السابقة",
@@ -145,7 +145,14 @@
   "nothingYet": "لا شيء بعد.",
   "removeToContinue": "أزل {count, plural, one {عنصرًا واحدًا} two {عنصرين} few {# عناصر} many {# عنصرًا} other {# عنصر}} للمتابعة.",
   "next": "الخطوة التالية",
-  "lastStep": "الخطوة الأخيرة"
+  "lastStep": "عرض سلطتي",
+  "continue": "متابعة",
+  "nextIs": "التالي: {step}",
+  "counterShort": "{selected} من {included}",
+  "counterExtra": "+{count} إضافية",
+  "stepAria": "الخطوة {n}: {name}",
+  "groupAll": "الكل",
+  "groupsNav": "أصناف الإضافات"
  },
  "formulaChange": {
   "title": "الانتقال إلى {name}؟",
@@ -219,7 +226,8 @@
    "name": "أدخل اسمك.",
    "address": "أدخل عنوان التوصيل.",
    "invalid": "يجب تعديل إحدى السلطات في السلة قبل الطلب."
-  }
+  },
+  "count": "{count, plural, one {سلطة واحدة} two {سلطتان} few {# سلطات} many {# سلطة} other {# سلطة}}"
  },
  "confirmation": {
   "title": "شكرًا!",

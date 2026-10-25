@@ -103,7 +103,7 @@
   "formulaTitle": "Choisissez votre formule",
   "formulaSubtitle": "Elle détermine ce qui est inclus. Vous pourrez en changer à tout moment sans perdre votre composition.",
   "backToBuilder": "Revenir à ma salade",
-  "finish": "Terminer ma salade",
+  "finish": "Terminer",
   "bowlRegion": "Votre salade",
   "emptyBowl": "Choisissez votre base",
   "bowlAlt": "Aperçu de votre salade en cours de composition",
@@ -127,8 +127,8 @@
   "seasonal": "selon saison",
   "noResults": "Aucun résultat.",
   "summaryTitle": "Votre composition",
-  "itemsCount": "{count, plural, =0 {aucun élément} one {# élément} other {# éléments}}",
-  "details": "Détails",
+  "itemsCount": "{count, plural, =0 {Votre salade est vide} one {# élément dans votre salade} other {# éléments dans votre salade}}",
+  "details": "Récapitulatif",
   "close": "Fermer",
   "stepsNav": "Étapes de composition",
   "previous": "Étape précédente",
@@ -145,7 +145,14 @@
   "nothingYet": "Rien pour l'instant.",
   "removeToContinue": "Retirez {count, plural, one {# élément} other {# éléments}} pour continuer.",
   "next": "Étape suivante",
-  "lastStep": "Dernière étape"
+  "lastStep": "Voir ma création",
+  "continue": "Continuer",
+  "nextIs": "Ensuite : {step}",
+  "counterShort": "{selected} sur {included}",
+  "counterExtra": "+{count} en suppl.",
+  "stepAria": "Étape {n} : {name}",
+  "groupAll": "Tout",
+  "groupsNav": "Catégories de toppings"
  },
  "formulaChange": {
   "title": "Passer à {name} ?",
@@ -219,7 +226,8 @@
    "name": "Indiquez votre nom.",
    "address": "Indiquez votre adresse de livraison.",
    "invalid": "Une salade du panier doit être ajustée avant de commander."
-  }
+  },
+  "count": "{count, plural, one {# salade} other {# salades}}"
  },
  "confirmation": {
   "title": "Merci !",
