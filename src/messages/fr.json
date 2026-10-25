@@ -1,0 +1,232 @@
+{
+ "meta": {
+  "title": "Bistrot Salad Bar — Composez votre salade",
+  "description": "Composez votre salade fraîche ingrédient par ingrédient au Bistrot Salad Bar, Meknès. Commande via WhatsApp.",
+  "composerTitle": "Composer ma salade"
+ },
+ "brand": {
+  "home": "Bistrot Salad Bar — accueil"
+ },
+ "nav": {
+  "main": "Navigation principale",
+  "compose": "Composer",
+  "menu": "Notre menu",
+  "formulas": "Formules",
+  "switchLanguage": "Afficher le site en arabe",
+  "cartCount": "Panier, {count, plural, =0 {vide} one {# salade} other {# salades}}"
+ },
+ "footer": {
+  "slogan": "Manger mieux pour se sentir bien !",
+  "visit": "Nous trouver",
+  "order": "Commander",
+  "whatsapp": "Commande via WhatsApp",
+  "compose": "Composer ma salade",
+  "menu": "Notre menu",
+  "prototype": "Prototype — visuels d'ingrédients provisoires, en attente des photographies officielles."
+ },
+ "notFound": {
+  "title": "Cette page n'existe pas",
+  "back": "Retour à l'accueil"
+ },
+ "home": {
+  "eyebrow": "Bistrot Salad Bar · Meknès",
+  "titleA": "Votre salade.",
+  "titleB": "Votre création.",
+  "subtitle": "Composez une salade qui vous ressemble, avec des ingrédients frais et savoureux.",
+  "cta": "Composer ma salade",
+  "secondary": "Découvrir nos formules",
+  "priceHint": "Formules à partir de 49 MAD · Commande via WhatsApp",
+  "heroAlt": "Bol de salade aux crevettes, épinards, tomates et œufs vu de dessus",
+  "howTitle": "Cinq étapes, une salade unique",
+  "how": {
+   "base": "Laitue, riz, quinoa, pâtes, blé soufflé ou roquette.",
+   "ingredient": "Plus de trente légumes, fruits secs et condiments.",
+   "topping": "Viandes, poissons, œufs, fromages et fruits de saison.",
+   "petitPlus": "La touche finale : graines, croûtons, herbes…",
+   "sauce": "Dix sauces, de la vinaigrette au pesto."
+  },
+  "formulasEyebrow": "Nos formules",
+  "formulasTitle": "Choisissez votre formule",
+  "formulasSubtitle": "Chaque formule fixe le nombre d'éléments inclus. Vous pouvez toujours en ajouter avec un supplément.",
+  "previewNote": "Les bols présentés sont des exemples de compositions.",
+  "barAlt": "Le comptoir à salades du Bistrot Salad Bar avec ses ingrédients frais",
+  "slogan": "Manger mieux pour se sentir bien !"
+ },
+ "formula": {
+  "base": "{count, plural, one {base} other {bases}}",
+  "ingredient": "{count, plural, one {ingrédient} other {ingrédients}}",
+  "topping": "{count, plural, one {topping} other {toppings}}",
+  "petitPlus": "{count, plural, one {petit plus} other {petits plus}}",
+  "sauce": "{count, plural, one {sauce} other {sauces}}",
+  "toConfirm": "à confirmer",
+  "toConfirmHint": "Le menu n'indique pas encore ce nombre : valeur provisoire.",
+  "from": "À partir de",
+  "choose": "Choisir cette formule",
+  "current": "Formule actuelle",
+  "previewAlt": "Exemple de salade {name}"
+ },
+ "categories": {
+  "base": {
+   "plural": "Bases",
+   "short": "Base"
+  },
+  "ingredient": {
+   "plural": "Ingrédients",
+   "short": "Ingrédients"
+  },
+  "topping": {
+   "plural": "Toppings",
+   "short": "Toppings"
+  },
+  "petitPlus": {
+   "plural": "Petits plus",
+   "short": "Petits plus"
+  },
+  "sauce": {
+   "plural": "Sauces",
+   "short": "Sauces"
+  }
+ },
+ "builder": {
+  "premiumAria": "supplément {price}",
+  "unavailable": "Indisponible",
+  "extraAria": "en supplément",
+  "extraBadge": "Supplément",
+  "swapped": "{name} remplace {previous}.",
+  "keepBoth": "Garder les deux (+{price})",
+  "limitBlocked": "Votre formule comprend {count} {category}. Retirez-en un pour en choisir un autre.",
+  "extraAdded": "{name} ajouté en supplément ({price}).",
+  "formulaChanged": "Formule {name} sélectionnée.",
+  "baseRequired": "Choisissez au moins une base pour continuer.",
+  "resolveLimits": "Quelques choix dépassent votre formule : ajustez-les pour continuer.",
+  "formulaEyebrow": "Étape préalable",
+  "formulaTitle": "Choisissez votre formule",
+  "formulaSubtitle": "Elle détermine ce qui est inclus. Vous pourrez en changer à tout moment sans perdre votre composition.",
+  "backToBuilder": "Revenir à ma salade",
+  "finish": "Terminer ma salade",
+  "bowlRegion": "Votre salade",
+  "emptyBowl": "Choisissez votre base",
+  "bowlAlt": "Aperçu de votre salade en cours de composition",
+  "prototypeHint": "Les visuels d'ingrédients sont provisoires en attendant les photos officielles.",
+  "prototypeBadge": "Visuels provisoires",
+  "stepOf": "Étape {step} sur {total}",
+  "steps": {
+   "base": "Choisissez votre base",
+   "ingredient": "Ajoutez vos ingrédients",
+   "topping": "Choisissez vos toppings",
+   "petitPlus": "Choisissez vos petits plus",
+   "sauce": "Choisissez votre sauce"
+  },
+  "counter": "{selected} / {included} {category}",
+  "provisional": "nombre à confirmer",
+  "extraRule": "{included} inclus · {price} par élément supplémentaire",
+  "blockedRule": "{included} inclus dans votre formule",
+  "search": "Rechercher un ingrédient",
+  "searchPlaceholder": "Rechercher…",
+  "clearSearch": "Effacer la recherche",
+  "seasonal": "selon saison",
+  "noResults": "Aucun résultat.",
+  "summaryTitle": "Votre composition",
+  "itemsCount": "{count, plural, =0 {aucun élément} one {# élément} other {# éléments}}",
+  "details": "Détails",
+  "close": "Fermer",
+  "stepsNav": "Étapes de composition",
+  "previous": "Étape précédente",
+  "exit": "Quitter et revenir à l'accueil",
+  "changeFormulaAria": "Formule {name}, changer de formule",
+  "premium": "premium",
+  "extraLine": "Supplément {category} × {count}",
+  "total": "Total",
+  "changeFormula": "Changer",
+  "editStep": "Modifier : {step}",
+  "edit": "Modifier",
+  "remove": "Retirer {name}",
+  "baseRequiredShort": "Une base est nécessaire.",
+  "nothingYet": "Rien pour l'instant.",
+  "removeToContinue": "Retirez {count, plural, one {# élément} other {# éléments}} pour continuer.",
+  "next": "Étape suivante",
+  "lastStep": "Dernière étape"
+ },
+ "formulaChange": {
+  "title": "Passer à {name} ?",
+  "intro": "Votre composition est conservée. Voici ce qui change par rapport à {from} :",
+  "selectedIncluded": "{selected} choisis, {included} inclus",
+  "mustRemove": "{count, plural, one {# élément devra être retiré} other {# éléments devront être retirés}} (pas de supplément prévu).",
+  "becomesExtra": "{count, plural, one {# élément passe} other {# éléments passent}} en supplément ({price}).",
+  "becomesIncluded": "{count, plural, one {# supplément devient inclus} other {# suppléments deviennent inclus}}.",
+  "newTotal": "Nouveau total",
+  "keep": "Garder {name}",
+  "switchAndAdjust": "Changer et ajuster",
+  "switch": "Changer de formule"
+ },
+ "reveal": {
+  "bowlAlt": "Votre salade terminée",
+  "back": "Retour à la composition",
+  "title": "Votre création est prête !",
+  "nameLabel": "Donnez-lui un nom (facultatif)",
+  "namePlaceholder": "Ex. : Mon bowl protéiné",
+  "updated": "Salade mise à jour",
+  "added": "Ajoutée au panier",
+  "update": "Mettre à jour",
+  "addToCart": "Ajouter au panier",
+  "modify": "Modifier ma salade",
+  "viewCart": "Voir le panier",
+  "another": "Composer une autre salade"
+ },
+ "menuPage": {
+  "title": "Notre menu",
+  "eyebrow": "La carte",
+  "subtitle": "Toutes nos formules et tous nos ingrédients, tels qu'au comptoir.",
+  "formulas": "Formules",
+  "supplements": "Suppléments",
+  "supplement": {
+   "base": "Supplément base {price}",
+   "ingredient": "Supplément ingrédient {price}",
+   "topping": "Supplément topping {price}"
+  },
+  "ctaTitle": "Prêt à composer ?",
+  "cta": "Composer ma salade"
+ },
+ "cart": {
+  "title": "Votre panier",
+  "emptyTitle": "Votre panier est vide",
+  "emptyText": "Composez votre première salade, elle vous attendra ici.",
+  "compose": "Composer ma salade",
+  "bowlAlt": "Aperçu de la salade",
+  "lineInvalid": "Cette salade doit être ajustée (base manquante ou ingrédient indisponible).",
+  "decrease": "Diminuer la quantité",
+  "increase": "Augmenter la quantité",
+  "edit": "Modifier",
+  "remove": "Retirer",
+  "addAnother": "Ajouter une autre salade",
+  "checkout": "Vos informations",
+  "name": "Nom",
+  "phone": "Téléphone",
+  "mode": "Retrait ou livraison",
+  "pickup": "À emporter",
+  "delivery": "Livraison",
+  "deliveryNote": "Zones et frais de livraison confirmés par le restaurant sur WhatsApp.",
+  "address": "Adresse de livraison",
+  "notes": "Remarques",
+  "total": "Total",
+  "review": "Vérifier ma commande",
+  "back": "Modifier mes informations",
+  "reviewTitle": "Vérifiez votre commande",
+  "reviewText": "Ce message sera envoyé au restaurant sur WhatsApp.",
+  "send": "Envoyer via WhatsApp",
+  "sendNote": "Le restaurant vous confirmera la commande et les modalités de paiement.",
+  "errors": {
+   "name": "Indiquez votre nom.",
+   "address": "Indiquez votre adresse de livraison.",
+   "invalid": "Une salade du panier doit être ajustée avant de commander."
+  }
+ },
+ "confirmation": {
+  "title": "Merci !",
+  "text": "Votre commande a été préparée dans WhatsApp. Envoyez le message pour la transmettre au restaurant, qui vous confirmera la commande.",
+  "total": "Total de la commande",
+  "resend": "Rouvrir WhatsApp",
+  "newOrder": "Nouvelle commande",
+  "backToCart": "Retour au panier"
+ }
+}

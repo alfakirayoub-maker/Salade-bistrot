@@ -1,0 +1,12 @@
+import { defineRouting } from "next-intl/routing";
+
+export const routing = defineRouting({
+  locales: ["fr", "ar"],
+  defaultLocale: "fr",
+  localePrefix: "always",
+});
+
+export type AppLocale = (typeof routing.locales)[number];
+
+export const localeDirection = (locale: string): "rtl" | "ltr" =>
+  locale === "ar" ? "rtl" : "ltr";

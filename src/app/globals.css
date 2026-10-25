@@ -1,0 +1,249 @@
+@import "tailwindcss";
+
+@theme {
+  --color-leaf: #8bc53f;
+  --color-leaf-deep: #5f9a1f;
+  --color-ink: #202421;
+  --color-ink-soft: #4b524d;
+  --color-mute: #7c847e;
+  --color-paper: #fafaf6;
+  --color-mist: #f1f7e9;
+  --color-stone: #eaede7;
+  --color-line: #e2e6de;
+  --font-sans: var(--font-manrope), var(--font-plex-arabic), ui-sans-serif, system-ui, sans-serif;
+  --font-arabic: var(--font-plex-arabic), var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+html[dir="rtl"] body {
+  font-family: var(--font-arabic);
+  line-height: 1.7;
+}
+
+/* Arabic needs more line height; tighten only Latin display type. */
+.display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  letter-spacing: -0.02em;
+}
+html[dir="rtl"] .display {
+  font-family: var(--font-arabic);
+  letter-spacing: 0;
+  font-weight: 700;
+}
+
+:focus-visible {
+  outline: 2.5px solid var(--color-leaf-deep);
+  outline-offset: 3px;
+  border-radius: 10px;
+}
+
+/* Directional icons (arrows, chevrons) flip in RTL. */
+html[dir="rtl"] .flip-rtl {
+  transform: scaleX(-1);
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Bowl                                                                      */
+/* ------------------------------------------------------------------------ */
+
+.bowl {
+  position: relative;
+  aspect-ratio: 1;
+  width: 100%;
+  perspective: 1400px;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.bowl-tilt {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.bowl-ground {
+  position: absolute;
+  inset: 6% 2% -1% 6%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(32, 36, 33, 0.42), rgba(32, 36, 33, 0.12) 70%, transparent);
+  filter: blur(18px);
+  transform: translate(3%, 4%);
+}
+
+.bowl-glow {
+  position: absolute;
+  inset: -12%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(139, 197, 63, 0.35), rgba(139, 197, 63, 0.08) 60%, transparent);
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 1.2s var(--ease-out-soft), transform 1.6s var(--ease-out-soft);
+}
+.bowl--celebrate .bowl-glow {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.bowl-dish {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.bowl-well {
+  position: absolute;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(circle at 60% 62%, #2a2d2b, #121413);
+}
+
+.bowl-base {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition:
+    clip-path 0.7s var(--ease-out-soft),
+    opacity 0.45s ease,
+    transform 0.7s var(--ease-out-soft);
+}
+.bowl-base[data-leaving] {
+  opacity: 0;
+  transform: scale(1.06);
+}
+
+.bowl-pieces {
+  position: absolute;
+  inset: 0;
+}
+
+.bowl-piece {
+  position: absolute;
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+.bowl-piece img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.bowl-sauce {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 8000;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* The rim shades the food near the edge: sells the depth of the bowl. */
+.bowl-shade {
+  position: absolute;
+  border-radius: 50%;
+  z-index: 9000;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 62%, rgba(10, 12, 10, 0.18) 80%, rgba(10, 12, 10, 0.62) 100%),
+    radial-gradient(circle at 30% 26%, rgba(0, 0, 0, 0.2), transparent 45%);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+
+.bowl-empty {
+  position: absolute;
+  inset: 30%;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: rgba(250, 250, 246, 0.62);
+  font-size: clamp(0.75rem, 2.4vw, 0.95rem);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  z-index: 9500;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Small entrance used by staggered cards (pure CSS, no JS needed). */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rise {
+  animation: rise 0.8s var(--ease-out-soft) both;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--r, 0deg));
+  }
+  50% {
+    transform: translateY(-10px) rotate(calc(var(--r, 0deg) + 6deg));
+  }
+}
+.float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes pop-delta {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.9);
+  }
+  15% {
+    opacity: 1;
+    transform: none;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+.pop-delta {
+  animation: pop-delta 1.6s var(--ease-out-soft) both;
+}

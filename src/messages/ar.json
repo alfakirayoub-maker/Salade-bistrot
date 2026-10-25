@@ -1,0 +1,232 @@
+{
+ "meta": {
+  "title": "بيسترو سالاد بار — ركّب سلطتك",
+  "description": "ركّب سلطتك الطازجة مكوّنًا بمكوّن في بيسترو سالاد بار بمكناس. الطلب عبر واتساب.",
+  "composerTitle": "ركّب سلطتك"
+ },
+ "brand": {
+  "home": "بيسترو سالاد بار — الصفحة الرئيسية"
+ },
+ "nav": {
+  "main": "التنقل الرئيسي",
+  "compose": "ركّب سلطتك",
+  "menu": "قائمتنا",
+  "formulas": "العروض",
+  "switchLanguage": "عرض الموقع بالفرنسية",
+  "cartCount": "السلة، {count, plural, =0 {فارغة} one {سلطة واحدة} two {سلطتان} few {# سلطات} many {# سلطة} other {# سلطة}}"
+ },
+ "footer": {
+  "slogan": "كُل أفضل لتشعر بالراحة!",
+  "visit": "عنواننا",
+  "order": "اطلب",
+  "whatsapp": "الطلب عبر واتساب",
+  "compose": "ركّب سلطتك",
+  "menu": "قائمتنا",
+  "prototype": "نموذج أولي — صور المكونات مؤقتة في انتظار الصور الرسمية."
+ },
+ "notFound": {
+  "title": "هذه الصفحة غير موجودة",
+  "back": "العودة إلى الرئيسية"
+ },
+ "home": {
+  "eyebrow": "بيسترو سالاد بار · مكناس",
+  "titleA": "سلطتك.",
+  "titleB": "من إبداعك.",
+  "subtitle": "ركّب سلطة تشبهك، بمكونات طازجة ولذيذة.",
+  "cta": "ركّب سلطتك",
+  "secondary": "اكتشف عروضنا",
+  "priceHint": "العروض ابتداءً من 49 درهم · الطلب عبر واتساب",
+  "heroAlt": "صحن سلطة بالروبيان والسبانخ والطماطم والبيض من الأعلى",
+  "howTitle": "خمس خطوات لسلطة فريدة",
+  "how": {
+   "base": "خس، أرز، كينوا، معكرونة، قمح منفوخ أو جرجير.",
+   "ingredient": "أكثر من ثلاثين نوعًا من الخضر والمكسرات والمخللات.",
+   "topping": "لحوم، أسماك، بيض، أجبان وفواكه الموسم.",
+   "petitPlus": "اللمسة الأخيرة: بذور، خبز محمّص، أعشاب…",
+   "sauce": "عشر صلصات، من الفينيغريت إلى البيستو."
+  },
+  "formulasEyebrow": "عروضنا",
+  "formulasTitle": "اختر عرضك",
+  "formulasSubtitle": "كل عرض يحدد عدد العناصر المشمولة، ويمكنك دائمًا إضافة المزيد مقابل مبلغ إضافي.",
+  "previewNote": "الصحون المعروضة أمثلة على تركيبات ممكنة.",
+  "barAlt": "ركن السلطات في بيسترو سالاد بار بمكوناته الطازجة",
+  "slogan": "كُل أفضل لتشعر بالراحة!"
+ },
+ "formula": {
+  "base": "{count, plural, one {قاعدة} two {قاعدتان} few {قواعد} many {قاعدة} other {قاعدة}}",
+  "ingredient": "{count, plural, one {مكوّن} two {مكوّنان} few {مكوّنات} many {مكوّنًا} other {مكوّن}}",
+  "topping": "{count, plural, one {إضافة رئيسية} two {إضافتان رئيسيتان} few {إضافات رئيسية} many {إضافة رئيسية} other {إضافة رئيسية}}",
+  "petitPlus": "{count, plural, one {لمسة إضافية} two {لمستان إضافيتان} few {لمسات إضافية} many {لمسة إضافية} other {لمسة إضافية}}",
+  "sauce": "{count, plural, one {صلصة} two {صلصتان} few {صلصات} many {صلصة} other {صلصة}}",
+  "toConfirm": "قيد التأكيد",
+  "toConfirmHint": "لا تحدد القائمة هذا العدد بعد: قيمة مؤقتة.",
+  "from": "ابتداءً من",
+  "choose": "اختر هذا العرض",
+  "current": "العرض الحالي",
+  "previewAlt": "مثال على سلطة {name}"
+ },
+ "categories": {
+  "base": {
+   "plural": "القواعد",
+   "short": "القاعدة"
+  },
+  "ingredient": {
+   "plural": "المكونات",
+   "short": "المكونات"
+  },
+  "topping": {
+   "plural": "الإضافات الرئيسية",
+   "short": "الإضافات"
+  },
+  "petitPlus": {
+   "plural": "اللمسات الإضافية",
+   "short": "اللمسات"
+  },
+  "sauce": {
+   "plural": "الصلصات",
+   "short": "الصلصات"
+  }
+ },
+ "builder": {
+  "premiumAria": "مبلغ إضافي {price}",
+  "unavailable": "غير متوفر",
+  "extraAria": "بمبلغ إضافي",
+  "extraBadge": "إضافي",
+  "swapped": "تم استبدال {previous} بـ{name}.",
+  "keepBoth": "احتفظ بالاثنين (+{price})",
+  "limitBlocked": "عرضك يشمل {count} من {category}. أزل عنصرًا لاختيار آخر.",
+  "extraAdded": "أُضيف {name} بمبلغ إضافي ({price}).",
+  "formulaChanged": "تم اختيار عرض {name}.",
+  "baseRequired": "اختر قاعدة واحدة على الأقل للمتابعة.",
+  "resolveLimits": "بعض اختياراتك تتجاوز عرضك: عدّلها للمتابعة.",
+  "formulaEyebrow": "قبل البدء",
+  "formulaTitle": "اختر عرضك",
+  "formulaSubtitle": "العرض يحدد ما هو مشمول، ويمكنك تغييره في أي وقت دون أن تفقد تركيبتك.",
+  "backToBuilder": "العودة إلى سلطتي",
+  "finish": "إنهاء سلطتي",
+  "bowlRegion": "سلطتك",
+  "emptyBowl": "اختر قاعدة سلطتك",
+  "bowlAlt": "معاينة سلطتك أثناء التركيب",
+  "prototypeHint": "صور المكونات مؤقتة في انتظار الصور الرسمية.",
+  "prototypeBadge": "صور مؤقتة",
+  "stepOf": "الخطوة {step} من {total}",
+  "steps": {
+   "base": "اختر قاعدة سلطتك",
+   "ingredient": "أضف مكوناتك",
+   "topping": "اختر إضافاتك الرئيسية",
+   "petitPlus": "اختر لمساتك الإضافية",
+   "sauce": "اختر صلصتك"
+  },
+  "counter": "{selected} / {included} {category}",
+  "provisional": "العدد قيد التأكيد",
+  "extraRule": "{included} مشمولة · {price} لكل عنصر إضافي",
+  "blockedRule": "{included} مشمولة في عرضك",
+  "search": "ابحث عن مكوّن",
+  "searchPlaceholder": "ابحث…",
+  "clearSearch": "مسح البحث",
+  "seasonal": "حسب الموسم",
+  "noResults": "لا توجد نتائج.",
+  "summaryTitle": "تركيبتك",
+  "itemsCount": "{count, plural, =0 {لا عناصر} one {عنصر واحد} two {عنصران} few {# عناصر} many {# عنصرًا} other {# عنصر}}",
+  "details": "التفاصيل",
+  "close": "إغلاق",
+  "stepsNav": "خطوات التركيب",
+  "previous": "الخطوة السابقة",
+  "exit": "الخروج والعودة إلى الرئيسية",
+  "changeFormulaAria": "عرض {name}، تغيير العرض",
+  "premium": "مميّز",
+  "extraLine": "إضافي ({category}) × {count}",
+  "total": "المجموع",
+  "changeFormula": "تغيير",
+  "editStep": "تعديل: {step}",
+  "edit": "تعديل",
+  "remove": "إزالة {name}",
+  "baseRequiredShort": "القاعدة ضرورية.",
+  "nothingYet": "لا شيء بعد.",
+  "removeToContinue": "أزل {count, plural, one {عنصرًا واحدًا} two {عنصرين} few {# عناصر} many {# عنصرًا} other {# عنصر}} للمتابعة.",
+  "next": "الخطوة التالية",
+  "lastStep": "الخطوة الأخيرة"
+ },
+ "formulaChange": {
+  "title": "الانتقال إلى {name}؟",
+  "intro": "تركيبتك محفوظة. هذا ما يتغير مقارنة بـ{from}:",
+  "selectedIncluded": "{selected} مختارة، {included} مشمولة",
+  "mustRemove": "يجب إزالة {count, plural, one {عنصر واحد} two {عنصرين} few {# عناصر} many {# عنصرًا} other {# عنصر}} (لا يوجد مبلغ إضافي محدد).",
+  "becomesExtra": "{count, plural, one {عنصر واحد يصبح} two {عنصران يصبحان} few {# عناصر تصبح} many {# عنصرًا يصبح} other {# عنصر يصبح}} بمبلغ إضافي ({price}).",
+  "becomesIncluded": "{count, plural, one {إضافة واحدة تصبح مشمولة} two {إضافتان تصبحان مشمولتين} few {# إضافات تصبح مشمولة} many {# إضافة تصبح مشمولة} other {# إضافة تصبح مشمولة}}.",
+  "newTotal": "المجموع الجديد",
+  "keep": "الإبقاء على {name}",
+  "switchAndAdjust": "التغيير والتعديل",
+  "switch": "تغيير العرض"
+ },
+ "reveal": {
+  "bowlAlt": "سلطتك الجاهزة",
+  "back": "العودة إلى التركيب",
+  "title": "سلطتك جاهزة!",
+  "nameLabel": "أعطها اسمًا (اختياري)",
+  "namePlaceholder": "مثال: صحني الغني بالبروتين",
+  "updated": "تم تحديث السلطة",
+  "added": "أُضيفت إلى السلة",
+  "update": "تحديث",
+  "addToCart": "أضف إلى السلة",
+  "modify": "تعديل سلطتي",
+  "viewCart": "عرض السلة",
+  "another": "ركّب سلطة أخرى"
+ },
+ "menuPage": {
+  "title": "قائمتنا",
+  "eyebrow": "القائمة",
+  "subtitle": "جميع عروضنا ومكوناتنا كما هي في المطعم.",
+  "formulas": "العروض",
+  "supplements": "المبالغ الإضافية",
+  "supplement": {
+   "base": "قاعدة إضافية {price}",
+   "ingredient": "مكوّن إضافي {price}",
+   "topping": "إضافة رئيسية إضافية {price}"
+  },
+  "ctaTitle": "مستعد للتركيب؟",
+  "cta": "ركّب سلطتك"
+ },
+ "cart": {
+  "title": "سلتك",
+  "emptyTitle": "سلتك فارغة",
+  "emptyText": "ركّب سلطتك الأولى وستجدها هنا.",
+  "compose": "ركّب سلطتك",
+  "bowlAlt": "معاينة السلطة",
+  "lineInvalid": "يجب تعديل هذه السلطة (قاعدة ناقصة أو مكوّن غير متوفر).",
+  "decrease": "إنقاص الكمية",
+  "increase": "زيادة الكمية",
+  "edit": "تعديل",
+  "remove": "إزالة",
+  "addAnother": "أضف سلطة أخرى",
+  "checkout": "معلوماتك",
+  "name": "الاسم",
+  "phone": "الهاتف",
+  "mode": "الاستلام أو التوصيل",
+  "pickup": "استلام من المطعم",
+  "delivery": "توصيل",
+  "deliveryNote": "يؤكد المطعم مناطق التوصيل ورسومه عبر واتساب.",
+  "address": "عنوان التوصيل",
+  "notes": "ملاحظات",
+  "total": "المجموع",
+  "review": "مراجعة طلبي",
+  "back": "تعديل معلوماتي",
+  "reviewTitle": "راجع طلبك",
+  "reviewText": "ستُرسل هذه الرسالة إلى المطعم عبر واتساب.",
+  "send": "أرسل عبر واتساب",
+  "sendNote": "سيؤكد لك المطعم الطلب وطريقة الدفع.",
+  "errors": {
+   "name": "أدخل اسمك.",
+   "address": "أدخل عنوان التوصيل.",
+   "invalid": "يجب تعديل إحدى السلطات في السلة قبل الطلب."
+  }
+ },
+ "confirmation": {
+  "title": "شكرًا!",
+  "text": "تم تجهيز طلبك في واتساب. أرسل الرسالة لإيصاله إلى المطعم، وسيؤكد لك الطلب.",
+  "total": "مجموع الطلب",
+  "resend": "إعادة فتح واتساب",
+  "newOrder": "طلب جديد",
+  "backToCart": "العودة إلى السلة"
+ }
+}
