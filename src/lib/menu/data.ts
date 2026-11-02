@@ -13,8 +13,9 @@ export const FORMULAS: Formula[] = [
     id: "equilibree",
     name: { fr: "Melina Équilibrée", ar: "ميلينا المتوازنة" },
     price: 59,
-    // The menu prints "SAUCES" without a number for the first three formulas.
-    allowances: { base: 1, ingredient: 5, topping: 2, petitPlus: 1, sauce: null },
+    // The menu prints "SAUCES" without a number for the first three formulas;
+    // the restaurant confirmed 1 included sauce (Nov 2026).
+    allowances: { base: 1, ingredient: 5, topping: 2, petitPlus: 1, sauce: 1 },
     accent: "#2F3331",
     order: 1,
   },
@@ -22,7 +23,7 @@ export const FORMULAS: Formula[] = [
     id: "merveille",
     name: { fr: "Melina Merveille", ar: "ميلينا الرائعة" },
     price: 69,
-    allowances: { base: 1, ingredient: 6, topping: 3, petitPlus: 1, sauce: null },
+    allowances: { base: 1, ingredient: 6, topping: 3, petitPlus: 1, sauce: 1 },
     accent: "#4F8A17",
     order: 2,
   },
@@ -30,7 +31,7 @@ export const FORMULAS: Formula[] = [
     id: "prestige",
     name: { fr: "Melina Prestige", ar: "ميلينا بريستيج" },
     price: 79,
-    allowances: { base: 1, ingredient: 8, topping: 4, petitPlus: 1, sauce: null },
+    allowances: { base: 1, ingredient: 8, topping: 4, petitPlus: 1, sauce: 1 },
     accent: "#2F3331",
     order: 3,
   },

@@ -148,9 +148,14 @@ describe("priceSalad", () => {
     expect(r.total).toBe(79);
   });
 
-  it("flags provisional sauce allowances but uses the menu value for Régale", () => {
-    expect(resolveAllowance(prestige, "sauce", DEFAULT_POLICY)).toEqual({ included: 1, provisional: true });
+  it("uses the confirmed sauce allowances (1, Régale 3)", () => {
+    expect(resolveAllowance(prestige, "sauce", DEFAULT_POLICY)).toEqual({ included: 1, provisional: false });
     expect(resolveAllowance(regale, "sauce", DEFAULT_POLICY)).toEqual({ included: 3, provisional: false });
+  });
+
+  it("falls back to a provisional allowance when a formula leaves it unset", () => {
+    const unset = { ...prestige, allowances: { ...prestige.allowances, sauce: null } };
+    expect(resolveAllowance(unset, "sauce", DEFAULT_POLICY)).toEqual({ included: 1, provisional: true });
   });
 
   it("requires at least one base", () => {

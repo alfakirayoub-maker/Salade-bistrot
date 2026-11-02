@@ -169,9 +169,11 @@ export function FormulaCards({ onPick, activeId }: { onPick?: (id: string) => vo
           );
         })}
       </div>
-      <p className="mt-3 text-[12px] text-mute">
-        <span className="text-amber-700">*</span> {t("toConfirmHint")}
-      </p>
+      {FORMULAS.some((f) => CATEGORIES.some((c) => resolveAllowance(f, c, DEFAULT_POLICY).provisional)) && (
+        <p className="mt-3 text-[12px] text-mute">
+          <span className="text-amber-700">*</span> {t("toConfirmHint")}
+        </p>
+      )}
     </div>
   );
 }
