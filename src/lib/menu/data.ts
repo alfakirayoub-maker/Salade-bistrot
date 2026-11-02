@@ -1,5 +1,5 @@
 /**
- * Official Bistrot Salad Bar menu ("NEW MENU COMPO", January 2025).
+ * Official Bistrot Salad Bar menu ("compo new", November 2026 update).
  *
  * Every item, price and quantity below is transcribed from the printed menu.
  * Nothing here is invented: rules the menu leaves open live in policies.ts.
@@ -12,34 +12,35 @@ export const FORMULAS: Formula[] = [
   {
     id: "equilibree",
     name: { fr: "Melina Équilibrée", ar: "ميلينا المتوازنة" },
-    price: 49,
+    price: 59,
     // The menu prints "SAUCES" without a number for the first three formulas.
     allowances: { base: 1, ingredient: 5, topping: 2, petitPlus: 1, sauce: null },
-    accent: "#E8336B",
+    accent: "#2F3331",
     order: 1,
   },
   {
     id: "merveille",
     name: { fr: "Melina Merveille", ar: "ميلينا الرائعة" },
-    price: 59,
+    price: 69,
     allowances: { base: 1, ingredient: 6, topping: 3, petitPlus: 1, sauce: null },
-    accent: "#F08A1C",
+    accent: "#4F8A17",
     order: 2,
   },
   {
     id: "prestige",
     name: { fr: "Melina Prestige", ar: "ميلينا بريستيج" },
-    price: 69,
+    price: 79,
     allowances: { base: 1, ingredient: 8, topping: 4, petitPlus: 1, sauce: null },
-    accent: "#7DBA2F",
+    accent: "#2F3331",
     order: 3,
   },
   {
     id: "regale",
     name: { fr: "Melina Régale", ar: "ميلينا ريغال" },
-    price: 119,
-    allowances: { base: 3, ingredient: 12, topping: 7, petitPlus: 2, sauce: 3 },
-    accent: "#4A4D4B",
+    price: 149,
+    allowances: { base: 3, ingredient: 12, topping: 8, petitPlus: 2, sauce: 3 },
+    accent: "#4F8A17",
+    servings: 2,
     order: 4,
   },
 ];
@@ -60,7 +61,7 @@ export const TOPPING_GROUPS: { id: ToppingGroup; name: Localized }[] = [
   { id: "poissons", name: { fr: "Poissons & crustacés", ar: "أسماك وقشريات" } },
   { id: "volailles", name: { fr: "Volailles & œufs", ar: "دواجن وبيض" } },
   { id: "fromages", name: { fr: "Fromages", ar: "أجبان" } },
-  { id: "fruits", name: { fr: "Fruits de saison", ar: "فواكه الموسم" } },
+  { id: "fruits", name: { fr: "Fruits", ar: "فواكه" } },
 ];
 
 type Row = [id: string, fr: string, ar: string, supplement?: number];
@@ -96,17 +97,12 @@ export const MENU_ITEMS: MenuItem[] = [
   // ÉTAPE 2 : AJOUTEZ VOS INGRÉDIENTS
   ...build("ingredient", [
     ["concombre", "Concombre", "خيار"],
-    ["haricots-verts", "Haricots verts", "فاصوليا خضراء"],
     ["carottes", "Carottes", "جزر"],
     ["oignons", "Oignons", "بصل"],
     ["pomme-de-terre", "Pomme de terre", "بطاطس"],
     ["betterave", "Betterave", "شمندر"],
     ["poivron", "Poivron", "فلفل حلو"],
-    ["artichaut", "Artichaut", "خرشوف"],
-    ["fenouil", "Fenouil", "شمر"],
-    ["brocolis", "Brocolis", "بروكلي"],
     ["tomates", "Tomates", "طماطم"],
-    ["tomates-cerises", "Tomates cerises", "طماطم كرزية"],
     ["tomates-confites", "Tomates confites", "طماطم كونفي"],
     ["tomates-sechees", "Tomates séchées", "طماطم مجففة"],
     ["aubergines-grillees", "Aubergines grillées", "باذنجان مشوي"],
@@ -114,11 +110,10 @@ export const MENU_ITEMS: MenuItem[] = [
     ["chou-rouge", "Chou rouge", "ملفوف أحمر"],
     ["chou-blanc", "Chou blanc", "ملفوف أبيض"],
     ["champignons", "Champignons", "فطر"],
-    ["avocat", "Avocat", "أفوكادو"],
     ["mais", "Maïs", "ذرة"],
     ["coeur-de-palmier", "Cœur de palmier", "قلب النخيل"],
     ["noix", "Noix", "جوز"],
-    ["cajou", "Cajou", "كاجو"],
+    ["cajou", "Noix de cajou", "كاجو"],
     ["cacahuetes", "Cacahuètes", "فول سوداني"],
     ["dattes", "Dattes", "تمر"],
     ["figues", "Figues", "تين"],
@@ -127,6 +122,18 @@ export const MENU_ITEMS: MenuItem[] = [
     ["cornichons", "Cornichons", "خيار مخلل"],
     ["olives", "Olives vertes / noires", "زيتون أخضر / أسود"],
   ]),
+  // "Selon disponibilité"
+  ...build(
+    "ingredient",
+    [
+      ["haricots-verts", "Haricots verts", "فاصوليا خضراء"],
+      ["artichaut", "Artichaut", "خرشوف"],
+      ["brocolis", "Brocolis", "بروكلي"],
+      ["tomates-cerises", "Tomates cerises", "طماطم كرزية"],
+      ["fenouil", "Fenouil", "شمر"],
+    ],
+    { seasonal: true },
+  ).map((item, i) => ({ ...item, order: 100 + i })),
 
   // ÉTAPE 3 : SÉLECTIONNEZ VOS TOPPINGS
   ...build(
@@ -141,10 +148,10 @@ export const MENU_ITEMS: MenuItem[] = [
     "topping",
     [
       ["saumon-fume", "Saumon fumé", "سلمون مدخّن", 15],
+      ["anchois", "Anchois", "أنشوفة", 10],
+      ["crevettes", "Crevettes", "روبيان"],
       ["thon", "Thon", "تونة"],
       ["calamars", "Calamars", "كاليماري"],
-      ["anchois", "Anchois", "أنشوفة"],
-      ["crevettes", "Crevettes", "روبيان"],
       ["surimi", "Surimi", "سوريمي"],
     ],
     { group: "poissons" },
@@ -154,7 +161,6 @@ export const MENU_ITEMS: MenuItem[] = [
     [
       ["poulet", "Poulet / Poulet grillé", "دجاج / دجاج مشوي"],
       ["charcuterie-poulet", "Charcuterie de poulet", "شاركوتري الدجاج"],
-      ["charcuterie-poulet-poivre", "Charcuterie de poulet au poivre", "شاركوتري الدجاج بالفلفل"],
       ["oeufs-caille", "Œufs de caille", "بيض السمّان"],
       ["oeufs-fermiers", "Œufs fermiers", "بيض بلدي"],
     ],
@@ -163,31 +169,30 @@ export const MENU_ITEMS: MenuItem[] = [
   ...build(
     "topping",
     [
+      ["parmesan", "Parmesan", "جبن بارميزان", 10],
       ["edam", "Edam", "جبن إيدام"],
       ["gouda", "Gouda", "جبن غودا"],
       ["mozzarella-cerises", "Mozzarella cerises", "موزاريلا صغيرة"],
       ["feta", "Feta", "جبن فيتا"],
-      ["parmesan", "Parmesan", "جبن بارميزان", 10],
       ["chevre", "Fromage de chèvre", "جبن الماعز"],
       ["brie", "Brie", "جبن بري"],
       ["fromage-bleu", "Fromage bleu", "جبن أزرق"],
-      ["emmental", "Emmental", "جبن إيمنتال"],
     ],
     { group: "fromages" },
   ),
   ...build(
     "topping",
     [
-      ["mangue", "Mangue", "مانجو"],
+      ["avocat", "Avocat", "أفوكادو", 5],
+      ["mangue", "Mangue", "مانجو", 5],
       ["ananas", "Ananas", "أناناس"],
+      ["framboise", "Framboise", "توت العليق"],
+      ["fraise", "Fraise", "فراولة"],
       ["poire", "Poire", "إجاص"],
       ["pomme", "Pomme", "تفاح"],
       ["peche", "Pêche", "خوخ"],
-      ["framboise", "Framboise", "توت العليق"],
-      ["melon", "Melon", "شمّام"],
-      ["grenade", "Grenade", "رمان"],
       ["orange", "Orange", "برتقال"],
-      ["kiwi-kaki", "Kiwi / Kaki", "كيوي / كاكي"],
+      ["kiwi", "Kiwi", "كيوي"],
     ],
     { group: "fruits", seasonal: true },
   ),
@@ -206,12 +211,12 @@ export const MENU_ITEMS: MenuItem[] = [
 
   // ÉTAPE 5 : AJOUTEZ VOTRE SAUCE
   ...build("sauce", [
+    ["melange-sauces", "Mélange sauces", "مزيج الصلصات", 5],
     ["sauce-healthy", "Sauce Healthy", "صلصة هيلثي", 5],
-    ["pesto", "Pesto", "صلصة البيستو"],
+    ["pesto", "Sauce pesto", "صلصة البيستو", 5],
     ["sauce-asiatique", "Sauce asiatique", "صلصة آسيوية"],
     ["vinaigrette", "Vinaigrette", "صلصة الفينيغريت"],
     ["sauce-cesar", "Sauce César", "صلصة سيزر"],
-    ["sauce-yaourt", "Sauce yaourt", "صلصة الزبادي", 5],
     ["sauce-cocktail", "Sauce cocktail", "صلصة كوكتيل"],
     ["miel-moutarde", "Miel & moutarde", "عسل وخردل"],
     ["sauce-balsamique", "Sauce balsamique", "صلصة البلسميك"],

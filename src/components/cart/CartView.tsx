@@ -16,6 +16,7 @@ export const LAST_ORDER_KEY = "bsb-last-order";
 
 export function CartView() {
   const t = useTranslations("cart");
+  const tf = useTranslations("formula");
   const locale = useLocale() as Locale;
   const router = useRouter();
   const lines = useCart();
@@ -80,6 +81,7 @@ export function CartView() {
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <h2 className="t-title">{l.formula?.name[locale] ?? l.formulaId}</h2>
+                          {l.formula?.servings && <p className="t-small text-leaf-deep">{tf("servings", { count: l.formula.servings })}</p>}
                           {line.name && <p className="t-small mt-0.5 truncate text-leaf-deep">« {line.name} »</p>}
                         </div>
                         <p className="t-price shrink-0 text-[17px]">{formatMAD(l.lineTotal, locale)}</p>

@@ -49,7 +49,7 @@ export interface CustomerInfo {
   notes?: string;
 }
 
-const LABELS: Record<Locale, Record<Category | "title" | "customer" | "phone" | "mode" | "pickup" | "delivery" | "address" | "notes" | "total" | "qty" | "salad" | "extra", string>> = {
+const LABELS: Record<Locale, Record<Category | "title" | "customer" | "phone" | "mode" | "pickup" | "delivery" | "address" | "notes" | "total" | "qty" | "salad" | "extra" | "servings", string>> = {
   fr: {
     title: "Nouvelle commande — Bistrot Salad Bar",
     customer: "Client",
@@ -63,6 +63,7 @@ const LABELS: Record<Locale, Record<Category | "title" | "customer" | "phone" | 
     qty: "Quantité",
     salad: "Salade",
     extra: "en supplément",
+    servings: "{n} personnes",
     base: "Base",
     ingredient: "Ingrédients",
     topping: "Toppings",
@@ -82,6 +83,7 @@ const LABELS: Record<Locale, Record<Category | "title" | "customer" | "phone" | 
     qty: "الكمية",
     salad: "سلطة",
     extra: "إضافية",
+    servings: "لـ{n} أشخاص",
     base: "القاعدة",
     ingredient: "المكونات",
     topping: "الإضافات الرئيسية",
@@ -107,7 +109,10 @@ export const buildWhatsAppMessage = (
 
   order.lines.forEach((line, i) => {
     const title = line.name.trim() ? ` « ${line.name.trim()} »` : "";
-    out.push(`*${i + 1}. ${line.formula?.name[locale] ?? line.formulaId}*${title}`);
+    const n = line.formula?.servings;
+    // Arabic uses the dual for two people ("لشخصين").
+    const servings = n ? ` (${locale === "ar" && n === 2 ? "لشخصين" : L.servings.replace("{n}", String(n))})` : "";
+    out.push(`*${i + 1}. ${line.formula?.name[locale] ?? line.formulaId}*${servings}${title}`);
     for (const c of CATEGORIES) {
       const ids = line.selection[c];
       if (!ids.length) continue;

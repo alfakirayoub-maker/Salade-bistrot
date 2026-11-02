@@ -27,7 +27,7 @@ export interface MenuItem {
    */
   supplement: number;
   available: boolean;
-  /** Fruits are marked "selon saison" on the menu. */
+  /** Marked "selon disponibilité" on the menu (some ingredients, all fruits). */
   seasonal?: boolean;
   /** Display order inside its category / group. */
   order: number;
@@ -47,6 +47,8 @@ export interface Formula {
   allowances: Allowances;
   /** Accent colour taken from the printed menu. */
   accent: string;
+  /** Number of people the formula serves, when the menu states it. */
+  servings?: number;
   order: number;
 }
 

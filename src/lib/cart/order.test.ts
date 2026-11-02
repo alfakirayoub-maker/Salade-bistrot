@@ -9,7 +9,7 @@ const lines = [
     formulaId: "equilibree",
     name: "Mon bowl",
     quantity: 2,
-    selection: { ...emptySelection(), base: ["roquette"], ingredient: ["concombre", "avocat"], topping: ["crevettes"], sauce: ["sauce-yaourt"] },
+    selection: { ...emptySelection(), base: ["roquette"], ingredient: ["concombre", "mais"], topping: ["crevettes"], sauce: ["sauce-healthy"] },
   },
   {
     formulaId: "regale",
@@ -22,10 +22,10 @@ const lines = [
 describe("priceOrder", () => {
   it("multiplies unit prices by quantity and sums lines", () => {
     const o = priceOrder(lines, FORMULAS_BY_ID, ITEMS_BY_ID, DEFAULT_POLICY);
-    expect(o.lines[0].unitPrice).toBe(49 + 15 + 5);
-    expect(o.lines[0].lineTotal).toBe(138);
-    expect(o.lines[1].unitPrice).toBe(119 + 10 + 15);
-    expect(o.total).toBe(138 + 144);
+    expect(o.lines[0].unitPrice).toBe(59 + 15 + 5);
+    expect(o.lines[0].lineTotal).toBe(158);
+    expect(o.lines[1].unitPrice).toBe(149 + 10 + 15);
+    expect(o.total).toBe(158 + 174);
     expect(o.valid).toBe(true);
   });
 
@@ -44,7 +44,8 @@ describe("WhatsApp message", () => {
     expect(msg).toContain("À emporter");
     expect(msg).toContain("Melina Équilibrée");
     expect(msg).toContain("Roquette (+15)");
-    expect(msg).toContain("Quantité: 2 × 69 MAD = 138 MAD");
+    expect(msg).toContain("Quantité: 2 × 79 MAD = 158 MAD");
+    expect(msg).toContain("Melina Régale* (2 personnes)");
     expect(msg).toContain(`TOTAL: ${order.total} MAD`);
   });
 
@@ -52,6 +53,7 @@ describe("WhatsApp message", () => {
     const msg = buildWhatsAppMessage(order, { name: "سلمى", mode: "delivery", address: "حمرية" }, ITEMS_BY_ID, "ar");
     expect(msg).toContain("توصيل");
     expect(msg).toContain("جرجير");
+    expect(msg).toContain("(لشخصين)");
     expect(msg).toContain(`المجموع: ${order.total} درهم`);
   });
 

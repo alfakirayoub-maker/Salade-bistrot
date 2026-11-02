@@ -4,7 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { FORMULAS, MENU_ITEMS, OFFICIAL_EXTRA_SLOT_FEES, TOPPING_GROUPS } from "@/lib/menu/data";
 import { CATEGORIES, type Locale, type MenuItem } from "@/lib/menu/types";
 import { formatDelta, formatMAD } from "@/lib/format";
-import { FormulaIncludes } from "@/components/builder/FormulaCards";
+import { FormulaBadge, FormulaIncludes } from "@/components/builder/FormulaCards";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/menu">): Promise<Metadata> {
   const { locale } = await params;
@@ -31,6 +31,7 @@ export default async function MenuPage({ params }: PageProps<"/[locale]/menu">) 
   const locale = l as Locale;
   const t = await getTranslations("menuPage");
   const tb = await getTranslations("builder");
+  const tf = await getTranslations("formula");
 
   return (
     <main className="mx-auto max-w-5xl px-5 pt-8 sm:px-6 sm:pt-12">
@@ -41,9 +42,11 @@ export default async function MenuPage({ params }: PageProps<"/[locale]/menu">) 
       <section className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label={t("formulas")}>
         {FORMULAS.map((f) => (
           <Link key={f.id} href={`/composer?formule=${f.id}`} className="card p-5 transition-transform hover:-translate-y-0.5 active:scale-[0.985]">
-            <span className="block h-1.5 w-10 rounded-full" style={{ backgroundColor: f.accent }} aria-hidden />
-            <h2 className="t-h3 mt-3">{f.name[locale]}</h2>
-            <p className="t-price mt-1 text-[24px]">{formatMAD(f.price, locale)}</p>
+            <p className="t-price-display text-[36px]">{formatMAD(f.price, locale)}</p>
+            <h2 className="mt-1.5">
+              <FormulaBadge formula={f} locale={locale} />
+            </h2>
+            {f.servings && <p className="t-small mt-1.5 font-medium text-leaf-deep">{tf("servings", { count: f.servings })}</p>}
             <div className="mt-3">
               <FormulaIncludes formula={f} layout="list" />
             </div>
@@ -79,7 +82,15 @@ export default async function MenuPage({ params }: PageProps<"/[locale]/menu">) 
                   </div>
                 ))
               ) : (
-                <ItemList items={items} locale={locale} />
+                <>
+                  <ItemList items={items.filter((m) => !m.seasonal)} locale={locale} />
+                  {items.some((m) => m.seasonal) && (
+                    <div className="mt-6">
+                      <h3 className="t-eyebrow mb-2 text-leaf-deep">{tb("limitedGroup")}</h3>
+                      <ItemList items={items.filter((m) => m.seasonal)} locale={locale} />
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </section>

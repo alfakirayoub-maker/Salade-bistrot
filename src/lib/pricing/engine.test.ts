@@ -14,13 +14,18 @@ const noStack: PricingPolicy = { ...DEFAULT_POLICY, stackPremiumOnExtraSlot: fal
 
 describe("official menu data", () => {
   it("has the four formulas at the printed prices", () => {
-    expect([49, 59, 69, 119]).toEqual(
+    expect([59, 69, 79, 149]).toEqual(
       ["equilibree", "merveille", "prestige", "regale"].map((id) => FORMULAS_BY_ID[id].price),
     );
   });
 
+  it("serves the Régale for 2 with 8 toppings", () => {
+    expect(regale.servings).toBe(2);
+    expect(regale.allowances.topping).toBe(8);
+  });
+
   it("has every printed item with a French and Arabic name", () => {
-    const counts = { base: 8, ingredient: 31, topping: 32, petitPlus: 8, sauce: 10 };
+    const counts = { base: 8, ingredient: 30, topping: 30, petitPlus: 8, sauce: 10 };
     for (const [category, n] of Object.entries(counts)) {
       expect(MENU_ITEMS.filter((i) => i.category === category)).toHaveLength(n);
     }
@@ -41,9 +46,13 @@ describe("official menu data", () => {
       "riz-brun": 10,
       "boeuf-roti": 10,
       "saumon-fume": 15,
+      anchois: 10,
       parmesan: 10,
+      avocat: 5,
+      mangue: 5,
+      "melange-sauces": 5,
       "sauce-healthy": 5,
-      "sauce-yaourt": 5,
+      pesto: 5,
     });
   });
 });
@@ -56,24 +65,24 @@ describe("priceSalad", () => {
       ITEMS_BY_ID,
       DEFAULT_POLICY,
     );
-    expect(r.total).toBe(49);
+    expect(r.total).toBe(59);
     expect(r.valid).toBe(true);
     expect(r.lines).toHaveLength(1);
   });
 
   it("adds a premium supplement even inside the allowance", () => {
     const r = priceSalad(equilibree, sel({ base: ["roquette"] }), ITEMS_BY_ID, DEFAULT_POLICY);
-    expect(r.total).toBe(49 + 15);
+    expect(r.total).toBe(59 + 15);
     expect(r.premiumTotal).toBe(15);
     expect(r.extraTotal).toBe(0);
   });
 
   it("charges 5 MAD per extra ingredient beyond the allowance", () => {
-    const ingredient = ["concombre", "carottes", "oignons", "betterave", "poivron", "mais", "avocat"];
+    const ingredient = ["concombre", "carottes", "oignons", "betterave", "poivron", "mais", "noix"];
     const r = priceSalad(equilibree, sel({ base: ["laitue"], ingredient }), ITEMS_BY_ID, DEFAULT_POLICY);
     expect(r.categories.ingredient.extra).toBe(2);
     expect(r.extraTotal).toBe(10);
-    expect(r.total).toBe(59);
+    expect(r.total).toBe(69);
   });
 
   it("charges 5 MAD per extra base and 10 MAD per extra topping", () => {
@@ -84,19 +93,19 @@ describe("priceSalad", () => {
       DEFAULT_POLICY,
     );
     expect(r.extraTotal).toBe(5 + 10);
-    expect(r.total).toBe(64);
+    expect(r.total).toBe(74);
   });
 
   it("stacks premium and extra-slot fee by default", () => {
     // Équilibrée includes 1 base. Laitue (free) + Roquette (+15) → 1 extra base.
     const r = priceSalad(equilibree, sel({ base: ["laitue", "roquette"] }), ITEMS_BY_ID, DEFAULT_POLICY);
-    expect(r.total).toBe(49 + 15 + 5);
+    expect(r.total).toBe(59 + 15 + 5);
   });
 
   it("charges only the higher amount when stacking is disabled", () => {
     const r = priceSalad(equilibree, sel({ base: ["laitue", "roquette"] }), ITEMS_BY_ID, noStack);
     // Roquette occupies the extra slot: max(5, 15) = 15. Laitue is included.
-    expect(r.total).toBe(49 + 15);
+    expect(r.total).toBe(59 + 15);
     expect(r.categories.base.extraItemIds).toEqual(["roquette"]);
   });
 
@@ -108,25 +117,25 @@ describe("priceSalad", () => {
 
   it("never double-charges a premium item inside the allowance", () => {
     const r = priceSalad(regale, sel({ base: ["roquette", "quinoa", "riz-brun"] }), ITEMS_BY_ID, DEFAULT_POLICY);
-    expect(r.total).toBe(119 + 15 + 10 + 10);
+    expect(r.total).toBe(149 + 15 + 10 + 10);
     expect(r.extraTotal).toBe(0);
   });
 
   it("charges premium sauces", () => {
     const r = priceSalad(
       regale,
-      sel({ base: ["laitue"], sauce: ["sauce-healthy", "sauce-yaourt", "pesto"] }),
+      sel({ base: ["laitue"], sauce: ["sauce-healthy", "melange-sauces", "pesto"] }),
       ITEMS_BY_ID,
       DEFAULT_POLICY,
     );
-    expect(r.total).toBe(129);
+    expect(r.total).toBe(149 + 5 + 5 + 5);
     expect(r.valid).toBe(true);
   });
 
   it("blocks extra sauces and petits plus because the menu prints no fee", () => {
     const r = priceSalad(
       prestige,
-      sel({ base: ["laitue"], sauce: ["pesto", "vinaigrette"], petitPlus: ["chia", "radis"] }),
+      sel({ base: ["laitue"], sauce: ["sauce-cesar", "vinaigrette"], petitPlus: ["chia", "radis"] }),
       ITEMS_BY_ID,
       DEFAULT_POLICY,
     );
@@ -136,7 +145,7 @@ describe("priceSalad", () => {
       "sauce",
     ]);
     // Blocked extras add nothing to the price.
-    expect(r.total).toBe(69);
+    expect(r.total).toBe(79);
   });
 
   it("flags provisional sauce allowances but uses the menu value for Régale", () => {
@@ -158,7 +167,7 @@ describe("priceSalad", () => {
       DEFAULT_POLICY,
     );
     expect(r.issues.map((i) => i.code).sort()).toEqual(["duplicate", "unknownItem", "wrongCategory"]);
-    expect(r.total).toBe(49);
+    expect(r.total).toBe(59);
   });
 
   it("flags unavailable items", () => {
@@ -186,7 +195,7 @@ describe("previewAdd", () => {
 });
 
 describe("analyzeFormulaChange", () => {
-  const ingredient = ["concombre", "carottes", "oignons", "betterave", "poivron", "mais", "avocat", "noix"];
+  const ingredient = ["concombre", "carottes", "oignons", "betterave", "poivron", "mais", "champignons", "noix"];
 
   it("explains that a smaller formula turns items into paid extras", () => {
     const s = sel({ base: ["laitue"], ingredient });
@@ -194,7 +203,7 @@ describe("analyzeFormulaChange", () => {
     expect(r.impacts).toEqual([
       expect.objectContaining({ category: "ingredient", extraBefore: 0, extraAfter: 3, mustRemove: 0 }),
     ]);
-    expect(r.priceAfter).toBe(49 + 15);
+    expect(r.priceAfter).toBe(59 + 15);
     expect(r.requiresResolution).toBe(false);
   });
 

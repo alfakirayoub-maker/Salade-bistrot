@@ -18,9 +18,10 @@ Not copied: the dark theme, the S/M/L size toggle (no sizes on our menu), fire e
 
 ## 2. Official menu (source of truth)
 
-Transcribed into `src/lib/menu/data.ts`: 4 formulas (49 / 59 / 69 / 119 MAD),
-8 bases, 31 ingredients, 32 toppings in 5 groups, 8 petits plus, 10 sauces,
-9 premium supplements, 3 extra-slot fees (base 5, ingredient 5, topping 10),
+Transcribed into `src/lib/menu/data.ts` (updated to the Nov 2026 "compo new" menu):
+4 formulas (59 / 69 / 79 / 149 MAD, Régale for 2 people with 8 toppings),
+8 bases, 30 ingredients (5 "selon disponibilité"), 30 toppings in 5 groups,
+8 petits plus, 10 sauces, 13 premium supplements, 3 extra-slot fees (base 5, ingredient 5, topping 10),
 WhatsApp 0691322455, Label'Gallery address, Instagram. Unit-tested against the PDF
 (counts, prices, supplements). Unclear rules → `docs/OPEN_QUESTIONS.md`.
 

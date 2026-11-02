@@ -870,22 +870,6 @@ const SPRITES: Record<string, SpriteGen> = {
     gloss: 0.2,
   }),
 
-  "charcuterie-poulet-poivre": slice({
-    radius: 15,
-    skin: "#3a2a24",
-    skinWidth: 1.6,
-    flesh: ["#f4cfc4", "#e8b2a4"],
-    inner: (r, _d, R) => {
-      let s = "";
-      for (let i = 0; i < 26; i++) {
-        const [x, y] = polar(50, 50, R * rand(r, 0.82, 1), r() * TAU);
-        s += `<circle cx="${n(x)}" cy="${n(y)}" r="${n(rand(r, 0.4, 0.8))}" fill="#1e1814"/>`;
-      }
-      return s;
-    },
-    gloss: 0.2,
-  }),
-
   "oeufs-caille": (r, d, seed) => {
     const g = d.grain(0.12, 1, seed);
     const white = d.radial([
@@ -917,18 +901,6 @@ const SPRITES: Record<string, SpriteGen> = {
 
   edam: cube({ top: "#f5de86", side: "#d8b850", size: [11, 13], grain: 0.18 }),
   gouda: cube({ top: "#f2c246", side: "#d09a22", size: [11, 13], grain: 0.18 }),
-  emmental: cube({
-    top: "#f7e4a2",
-    side: "#d9c070",
-    size: [12, 14],
-    grain: 0.15,
-    extra: (r, _d, top) => {
-      const cx = top.reduce((s, p) => s + p[0], 0) / 4;
-      const cy = top.reduce((s, p) => s + p[1], 0) / 4;
-      return `<circle cx="${n(cx + rand(r, -3, 2))}" cy="${n(cy + rand(r, -3, 2))}" r="${n(rand(r, 1.4, 2.2))}" fill="#e2c770"/>`;
-    },
-  }),
-
   "mozzarella-cerises": (r, d) => ball(d, 50, 50, rand(r, 7.5, 8.5), "#f2efe6", 0.75),
 
   feta: cube({ top: "#fbfaf2", side: "#e2ded0", size: [10, 13], irregularity: 0.18, grain: 0.4 }),
@@ -980,8 +952,6 @@ const SPRITES: Record<string, SpriteGen> = {
       return [0, 1, 2].map((i) => `<line x1="${n(cx - 5)}" y1="${n(cy - 3 + i * 3)}" x2="${n(cx + 5)}" y2="${n(cy - 4 + i * 3 + rand(r, 0, 1))}" stroke="#f6c43a" stroke-width="0.6"/>`).join("");
     },
   }),
-  melon: cube({ top: "#ffc27e", side: "#ec9a52", size: [12, 14], grain: 0.15, gloss: 0.35 }),
-
   poire: crescent({ outer: 22, thickness: 9, span: 1.7, fill: ["#fbf6de", "#ece3b0"], skin: "#c2b44a", skinWidth: 1.6, grain: 0.15 }),
   pomme: crescent({ outer: 22, thickness: 9, span: 1.7, fill: ["#fdf8e6", "#f0e4b8"], skin: "#c0262c", skinWidth: 1.8, grain: 0.12 }),
   peche: crescent({ outer: 22, thickness: 9, span: 1.6, fill: ["#ffc768", "#f59a2e"], skin: "#d0402a", skinWidth: 1.8, grain: 0.15 }),
@@ -1008,17 +978,33 @@ const SPRITES: Record<string, SpriteGen> = {
     return out;
   },
 
-  grenade: cluster([5, 7], 7, (r, d, x, y) => {
-    const g = d.radial([
-      [0, "#ff6a7a"],
-      [0.7, "#c8102e"],
-      [1, "#8a0a20"],
-    ], { fx: 0.38, fy: 0.35 });
-    const a = rand(r, 0, 360);
-    return `<g transform="rotate(${n(a)} ${n(x)} ${n(y)})"><path d="M${n(x)} ${n(y - 4)} C${n(x + 3.8)} ${n(y - 2)} ${n(x + 3.4)} ${n(y + 3.6)} ${n(x)} ${n(y + 3.6)} C${n(x - 3.4)} ${n(y + 3.6)} ${n(x - 3.8)} ${n(y - 2)} ${n(x)} ${n(y - 4)}Z" fill="${g}"/><ellipse cx="${n(x - 1)}" cy="${n(y - 1)}" rx="1" ry="0.6" fill="#fff" opacity="0.7"/></g>`;
-  }),
+  fraise: (r, d, seed) => {
+    // Halved strawberry: red flesh fading to a pale heart, seeds on the rim.
+    const g = d.grain(0.15, 0.9, seed);
+    const flesh = d.radial([
+      [0, "#fde6e2"],
+      [0.45, "#f58a8a"],
+      [0.8, "#e0303e"],
+      [1, "#b81628"],
+    ], { cy: 0.55, r: 0.55 });
+    const rot = rand(r, 0, 360);
+    const body = "M50 72 C36 64 31 50 33 41 C35 32 43 29 50 32 C57 29 65 32 67 41 C69 50 64 64 50 72Z";
+    let seeds = "";
+    for (let i = 0; i < 14; i++) {
+      const t = i / 13;
+      const a = Math.PI * (0.15 + 0.7 * t);
+      seeds += `<ellipse cx="${n(50 + Math.cos(a + Math.PI / 2) * 15 * (t < 0.5 ? 1 : -1) * Math.sin(Math.PI * t))}" cy="${n(38 + 30 * t)}" rx="0.7" ry="1" fill="#f6d77a"/>`;
+    }
+    return (
+      `<g transform="rotate(${n(rot)} 50 50)"><g filter="${g}"><path d="${body}" fill="${flesh}"/>` +
+      `<path d="M50 36 C47 46 47 56 50 66 C53 56 53 46 50 36Z" fill="#fff4f0" opacity="0.7"/>${seeds}` +
+      `<path d="M42 33 Q46 27 50 31 Q54 27 58 33 Q54 31 50 34 Q46 31 42 33Z" fill="#4f8a2a"/></g>` +
+      sheen(d, 44, 42, 6, 3, 0.35) +
+      `</g>`
+    );
+  },
 
-  "kiwi-kaki": slice({
+  kiwi: slice({
     radius: 14,
     skin: "#6d4e2a",
     skinWidth: 1.2,

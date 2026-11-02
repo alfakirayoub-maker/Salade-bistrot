@@ -445,6 +445,12 @@ export function Builder({ initialFormulaId, editId }: { initialFormulaId?: strin
                 <ChipGrid items={items.filter((i) => i.group === g.id)} locale={locale} selection={selection} extraIds={extraIds} onToggle={toggle} />
               </div>
             ))
+          ) : category === "ingredient" && !query ? (
+            <>
+              <ChipGrid items={items.filter((i) => !i.seasonal)} locale={locale} selection={selection} extraIds={extraIds} onToggle={toggle} />
+              <h3 className="t-eyebrow mb-2 mt-6 px-2 text-mute">{t("limitedGroup")}</h3>
+              <ChipGrid items={items.filter((i) => i.seasonal)} locale={locale} selection={selection} extraIds={extraIds} onToggle={toggle} />
+            </>
           ) : items.length ? (
             <ChipGrid items={items} locale={locale} selection={selection} extraIds={extraIds} onToggle={toggle} />
           ) : (

@@ -35,13 +35,13 @@
   "subtitle": "Composez une salade qui vous ressemble, avec des ingrédients frais et savoureux.",
   "cta": "Composer ma salade",
   "secondary": "Découvrir nos formules",
-  "priceHint": "Formules à partir de 49 MAD · Commande via WhatsApp",
+  "priceHint": "Formules à partir de 59 MAD · Commande via WhatsApp",
   "heroAlt": "Bol de salade aux crevettes, épinards, tomates et œufs vu de dessus",
   "howTitle": "Cinq étapes, une salade unique",
   "how": {
    "base": "Laitue, riz, quinoa, pâtes, blé soufflé ou roquette.",
    "ingredient": "Plus de trente légumes, fruits secs et condiments.",
-   "topping": "Viandes, poissons, œufs, fromages et fruits de saison.",
+   "topping": "Viandes, poissons, œufs, fromages et fruits.",
    "petitPlus": "La touche finale : graines, croûtons, herbes…",
    "sauce": "Dix sauces, de la vinaigrette au pesto."
   },
@@ -63,7 +63,8 @@
   "from": "À partir de",
   "choose": "Choisir cette formule",
   "current": "Formule actuelle",
-  "previewAlt": "Exemple de salade {name}"
+  "previewAlt": "Exemple de salade {name}",
+  "servings": "Pour {count} personnes"
  },
  "categories": {
   "base": {
@@ -124,7 +125,7 @@
   "search": "Rechercher un ingrédient",
   "searchPlaceholder": "Rechercher…",
   "clearSearch": "Effacer la recherche",
-  "seasonal": "selon saison",
+  "seasonal": "selon disponibilité",
   "noResults": "Aucun résultat.",
   "summaryTitle": "Votre composition",
   "itemsCount": "{count, plural, =0 {Votre salade est vide} one {# élément dans votre salade} other {# éléments dans votre salade}}",
@@ -152,7 +153,8 @@
   "counterExtra": "+{count} en suppl.",
   "stepAria": "Étape {n} : {name}",
   "groupAll": "Tout",
-  "groupsNav": "Catégories de toppings"
+  "groupsNav": "Catégories de toppings",
+  "limitedGroup": "Selon disponibilité"
  },
  "formulaChange": {
   "title": "Passer à {name} ?",

@@ -65,6 +65,7 @@ export function Summary({
 }) {
   const t = useTranslations("builder");
   const tc = useTranslations("categories");
+  const tf = useTranslations("formula");
   const locale = useLocale() as Locale;
 
   return (
@@ -73,6 +74,7 @@ export function Summary({
         <div>
           <p className="t-eyebrow text-mute">{t("summaryTitle")}</p>
           <h2 className="t-h3 mt-1.5">{formula.name[locale]}</h2>
+          {formula.servings && <p className="t-small mt-0.5 font-medium text-leaf-deep">{tf("servings", { count: formula.servings })}</p>}
         </div>
         <button type="button" onClick={onChangeFormula} className="h-10 shrink-0 rounded-full bg-stone px-4 text-[13px] font-medium hover:bg-line">
           {t("changeFormula")}

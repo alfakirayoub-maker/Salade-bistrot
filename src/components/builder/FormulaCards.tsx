@@ -23,8 +23,8 @@ export const SHOWCASE: Record<string, Selection> = {
   merveille: {
     ...emptySelection(),
     base: ["quinoa"],
-    ingredient: ["avocat", "concombre", "tomates-cerises", "chou-rouge", "mais", "oignons"],
-    topping: ["crevettes", "mangue", "feta"],
+    ingredient: ["concombre", "tomates-cerises", "chou-rouge", "mais", "oignons", "carottes"],
+    topping: ["crevettes", "avocat", "feta"],
     petitPlus: ["chia"],
     sauce: ["sauce-asiatique"],
   },
@@ -32,15 +32,15 @@ export const SHOWCASE: Record<string, Selection> = {
     ...emptySelection(),
     base: ["roquette"],
     ingredient: ["tomates-confites", "artichaut", "champignons", "noix", "figues", "courgettes-grillees", "coeur-de-palmier", "betterave"],
-    topping: ["saumon-fume", "oeufs-caille", "chevre", "grenade"],
+    topping: ["saumon-fume", "oeufs-caille", "chevre", "framboise"],
     petitPlus: ["plantes-aromatiques"],
     sauce: ["miel-moutarde"],
   },
   regale: {
     ...emptySelection(),
     base: ["laitue", "riz-blanc", "quinoa"],
-    ingredient: ["concombre", "tomates-cerises", "avocat", "mais", "carottes", "chou-rouge", "betterave", "champignons", "olives", "noix", "poivron", "haricots-verts"],
-    topping: ["crevettes", "poulet", "oeufs-fermiers", "feta", "mozzarella-cerises", "mangue", "grenade"],
+    ingredient: ["concombre", "tomates-cerises", "mais", "carottes", "chou-rouge", "betterave", "champignons", "olives", "noix", "poivron", "haricots-verts", "cornichons"],
+    topping: ["crevettes", "poulet", "oeufs-fermiers", "feta", "mozzarella-cerises", "avocat", "mangue", "fraise"],
     petitPlus: ["croutons-ail", "pois-chiches"],
     sauce: ["sauce-yaourt", "pesto", "sauce-balsamique"],
   },
@@ -90,6 +90,18 @@ export function FormulaIncludes({ formula, layout = "inline" }: { formula: Formu
   );
 }
 
+/** The formula name as on the printed menu: capitals in a dark or green pill. */
+export function FormulaBadge({ formula, locale, className = "" }: { formula: Formula; locale: Locale; className?: string }) {
+  return (
+    <span
+      className={`t-formula inline-block max-w-full rounded-full px-3.5 py-[7px] text-white max-[359px]:text-[13px] rtl:py-1 ${className}`}
+      style={{ backgroundColor: formula.accent }}
+    >
+      {formula.name[locale]}
+    </span>
+  );
+}
+
 function ProvisionalMark() {
   const t = useTranslations("formula");
   return (
@@ -108,8 +120,6 @@ export function FormulaCards({ onPick, activeId }: { onPick?: (id: string) => vo
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4 xl:gap-4">
         {FORMULAS.map((f, i) => {
           const active = activeId === f.id;
-          // "Melina Prestige" → small "Melina" eyebrow + serif "Prestige".
-          const [brand, ...rest] = f.name[locale].split(" ");
           const body = (
             <>
               {/* Bowl preview: small on phones, hero-sized on wide cards. */}
@@ -119,19 +129,14 @@ export function FormulaCards({ onPick, activeId }: { onPick?: (id: string) => vo
                 </span>
               </span>
               <span className="flex min-w-0 flex-1 flex-col xl:mt-4">
-                <span className="flex items-start justify-between gap-2">
-                  <span className="min-w-0">
-                    <span className="t-eyebrow flex items-center gap-1.5 text-mute">
-                      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: f.accent }} aria-hidden />
-                      {brand}
-                    </span>
-                    <span className="t-h3 mt-1 block">{rest.join(" ")}</span>
-                  </span>
-                  <span className="shrink-0 text-end">
+                <span className="flex items-end justify-between gap-2">
+                  <span>
                     <span className="block text-[11px] text-mute">{t("from")}</span>
-                    <span className="t-price block text-[22px] leading-tight text-ink">{formatMAD(f.price, locale)}</span>
+                    <span className="t-price-display block text-[34px] text-ink">{formatMAD(f.price, locale)}</span>
                   </span>
                 </span>
+                <FormulaBadge formula={f} locale={locale} className="mt-1.5 self-start" />
+                {f.servings && <span className="t-small mt-1.5 block font-medium text-leaf-deep">{t("servings", { count: f.servings })}</span>}
                 <span className="mt-2.5 block">
                   <FormulaIncludes formula={f} />
                 </span>
