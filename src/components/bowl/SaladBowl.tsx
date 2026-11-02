@@ -7,7 +7,7 @@ import { getAsset, getSpriteUrl, resolveVisual, type PieceAsset, type SauceAsset
 import { getBaseTexture } from "@/lib/visual/baseTextures";
 import { BOWL_INTERIOR, bowlImageUrl } from "@/lib/visual/bowl";
 import { drizzleFor } from "@/lib/visual/drizzle";
-import { layoutPieces, type Piece } from "@/lib/visual/placement";
+import { pieceCount, piecesForSlots, SlotRegistry, type Piece } from "@/lib/visual/placement";
 import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 import { consumeDropOrigin } from "./dropOrigin";
 
@@ -244,18 +244,22 @@ const PieceGroup = memo(function PieceGroup({
 const SauceDrizzle = memo(function SauceDrizzle({
   id,
   slot,
+  total,
   leaving,
   animateIn,
   reduced,
 }: {
   id: string;
   slot: number;
+  total: number;
   leaving: boolean;
   animateIn: boolean;
   reduced: boolean;
 }) {
   const asset = getAsset(id) as SauceAsset | undefined;
   const drizzle = useMemo(() => drizzleFor(id, slot), [id, slot]);
+  // Several sauces: thinner lines so the salad stays visible.
+  const thin = total > 1 ? 0.78 : 1;
   const group = useRef<SVGGElement>(null);
   const main = useRef<SVGPathElement>(null);
   const shine = useRef<SVGPathElement>(null);
@@ -293,14 +297,14 @@ const SauceDrizzle = memo(function SauceDrizzle({
   if (!asset) return null;
   return (
     <g ref={group} opacity={asset.opacity}>
-      <path d={drizzle.path} fill="none" stroke="#0b1405" strokeOpacity={0.3} strokeWidth={asset.width * 1.25} strokeLinecap="round" strokeLinejoin="round" transform="translate(0.45 0.75)" className="shadow" />
-      <path ref={main} d={drizzle.path} fill="none" stroke={asset.color} strokeWidth={asset.width} strokeLinecap="round" strokeLinejoin="round" />
+      <path d={drizzle.path} fill="none" stroke="#0b1405" strokeOpacity={0.3} strokeWidth={asset.width * 1.25 * thin} strokeLinecap="round" strokeLinejoin="round" transform="translate(0.45 0.75)" className="shadow" />
+      <path ref={main} d={drizzle.path} fill="none" stroke={asset.color} strokeWidth={asset.width * thin} strokeLinecap="round" strokeLinejoin="round" />
       <path
         ref={shine}
         d={drizzle.path}
         fill="none"
         stroke={asset.highlight}
-        strokeWidth={asset.width * 0.32}
+        strokeWidth={asset.width * 0.32 * thin}
         strokeLinecap="round"
         opacity={0.75}
         transform="translate(-0.25 -0.3)"
@@ -349,14 +353,21 @@ export function SaladBowl({
     for (const id of initialIds) if (!present.has(id)) initialIds.delete(id);
   }, [pieceIds, selection.sauce, initialIds]);
   const saucePresence = usePresence(selection.sauce, interactive && !reducedPref, 400);
+  // Slots are claimed once per ingredient and kept while it is in the bowl,
+  // so adding or removing one ingredient never moves the others.
+  const [registry] = useState(() => new SlotRegistry());
   const layouts = useMemo(() => {
+    const present = new Set(piecePresence.map(([id]) => id));
+    for (const id of registry.ids()) if (!present.has(id)) registry.release(id);
     const map: Record<string, Piece[]> = {};
     for (const [id] of piecePresence) {
       const asset = getAsset(id);
-      if (asset?.kind === "pieces") map[id] = layoutPieces(id, asset as PieceAsset, density);
+      if (asset?.kind !== "pieces") continue;
+      const pieceAsset = asset as PieceAsset;
+      map[id] = piecesForSlots(id, pieceAsset, registry.claim(id, pieceCount(pieceAsset, density)));
     }
     return map;
-  }, [piecePresence, density]);
+  }, [piecePresence, density, registry]);
 
   // A gentle "bump" when something lands, so the bowl reacts to the action.
   const total = pieceIds.length + selection.base.length + selection.sauce.length;
@@ -449,6 +460,7 @@ export function SaladBowl({
               key={id}
               id={id}
               slot={Math.max(0, selection.sauce.indexOf(id))}
+              total={selection.sauce.length}
               leaving={leaving}
               animateIn={interactive && !initialIds.has(id)}
               reduced={reduced}
