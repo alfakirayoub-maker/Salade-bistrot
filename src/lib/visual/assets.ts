@@ -6,8 +6,6 @@
  * transparent top-down WebP per item in /public/ingredients/ and set `src`:
  * the bowl engine, placement and animations do not change.
  */
-import type { Category } from "@/lib/menu/types";
-import { ITEMS_BY_ID } from "@/lib/menu/data";
 import { Defs, hashString, mulberry32, spriteDocument } from "./svg";
 import { getSprite } from "./sprites";
 
@@ -176,7 +174,21 @@ export const ASSETS: Record<string, IngredientAsset> = {
   "salsa-verde": sauce("#3f7a2a", "#7cb84a", 0.85, "#d8e8a0", 1.9),
 };
 
-export const getAsset = (id: string): IngredientAsset | undefined => ASSETS[id];
+// Items added from the admin page borrow an existing visual (menu_items.visual).
+let aliases: Record<string, string> = {};
+export const setVisualAliases = (map: Record<string, string>) => {
+  aliases = map;
+};
+/** The visual key that draws an item: its own, or the one it borrows. */
+export const resolveVisual = (id: string) => (ASSETS[id] ? id : (aliases[id] ?? id));
+
+export const getAsset = (id: string): IngredientAsset | undefined => ASSETS[resolveVisual(id)];
+
+/** Visual keys the admin page can offer for a new item, per kind. */
+export const visualKeys = (kind: IngredientAsset["kind"]) =>
+  Object.entries(ASSETS)
+    .filter(([, a]) => a.kind === kind)
+    .map(([k]) => k);
 
 export const isPrototypeAsset = (id: string) => {
   const a = ASSETS[id];
@@ -185,8 +197,6 @@ export const isPrototypeAsset = (id: string) => {
   if (a.kind === "base") return !a.src;
   return true;
 };
-
-export const categoryOf = (id: string): Category | undefined => ITEMS_BY_ID[id]?.category;
 
 // ---------------------------------------------------------------------------
 // Sprite rasterisation (browser only)
@@ -234,7 +244,8 @@ const rasterise = (svg: string, size: number): Promise<string | null> =>
     img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
   });
 
-export const spriteSvg = (id: string, variant: number, size = 192): string | null => {
+export const spriteSvg = (itemId: string, variant: number, size = 192): string | null => {
+  const id = resolveVisual(itemId);
   const gen = getSprite(id);
   if (!gen) return null;
   const seed = hashString(`${id}#${variant}`);
@@ -243,7 +254,8 @@ export const spriteSvg = (id: string, variant: number, size = 192): string | nul
   return spriteDocument(content, defs, size);
 };
 
-export const getSpriteUrl = (id: string, variant: number, size = 192): Promise<string | null> => {
+export const getSpriteUrl = (itemId: string, variant: number, size = 192): Promise<string | null> => {
+  const id = resolveVisual(itemId);
   const asset = ASSETS[id];
   if (asset?.kind === "pieces" && asset.src?.length) {
     return Promise.resolve(asset.src[variant % asset.src.length]);

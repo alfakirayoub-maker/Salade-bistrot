@@ -4,7 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { ArrowLeft, ArrowRight, ChevronDown, Search, X } from "lucide-react";
 import type { ToppingGroup } from "@/lib/menu/types";
-import { FORMULAS_BY_ID, ITEMS_BY_ID, MENU_ITEMS, TOPPING_GROUPS } from "@/lib/menu/data";
+import { FORMULAS_BY_ID, TOPPING_GROUPS } from "@/lib/menu/data";
+import { useMenu } from "@/lib/menu/MenuProvider";
 import { DEFAULT_POLICY } from "@/lib/menu/policies";
 import { CATEGORIES, emptySelection, type Category, type Locale, type MenuItem, type Selection } from "@/lib/menu/types";
 import { previewAdd, priceSalad } from "@/lib/pricing/engine";
@@ -32,10 +33,6 @@ interface Notice {
   action?: { label: string; run: () => void };
 }
 
-const ITEMS_BY_CATEGORY: Record<Category, MenuItem[]> = Object.fromEntries(
-  CATEGORIES.map((c) => [c, MENU_ITEMS.filter((i) => i.category === c).sort((a, b) => a.order - b.order)]),
-) as Record<Category, MenuItem[]>;
-
 const normalize = (s: string) =>
   s
     .toLowerCase()
@@ -46,13 +43,15 @@ export function Builder({ initialFormulaId, editId }: { initialFormulaId?: strin
   const t = useTranslations("builder");
   const tc = useTranslations("categories");
   const locale = useLocale() as Locale;
+  // The live menu (from Supabase, loaded on the server).
+  const { itemsById, byCategory } = useMenu();
 
   // Initial state, in priority order:
   // 1. the session draft (survives a language switch, which remounts the page),
   // 2. a cart line being edited (?modifier=…),
   // 3. the formula picked on the home page (?formule=…).
   const [init] = useState<Draft | null>(() => {
-    const draft = readDraft();
+    const draft = readDraft(itemsById);
     if (editId) {
       if (draft?.editing === editId) return draft;
       const line = cart.get().find((l) => l.id === editId);
@@ -94,8 +93,8 @@ export function Builder({ initialFormulaId, editId }: { initialFormulaId?: strin
     writeDraft({ formulaId, selection, step, stage, name, editing });
   }, [formulaId, selection, step, stage, name, editing, savedToCart]);
   const breakdown = useMemo(
-    () => (formula ? priceSalad(formula, selection, ITEMS_BY_ID, DEFAULT_POLICY) : null),
-    [formula, selection],
+    () => (formula ? priceSalad(formula, selection, itemsById, DEFAULT_POLICY) : null),
+    [formula, selection, itemsById],
   );
 
   // Price "+delta" pill, like the reference configurator.
@@ -128,7 +127,7 @@ export function Builder({ initialFormulaId, editId }: { initialFormulaId?: strin
         setSelection({ ...selection, [c]: current.filter((id) => id !== item.id) });
         return;
       }
-      const preview = previewAdd(formula, selection, c, item.id, ITEMS_BY_ID, DEFAULT_POLICY);
+      const preview = previewAdd(formula, selection, c, item.id, itemsById, DEFAULT_POLICY);
       const allowance = breakdown?.categories[c].included ?? 0;
       const itemName = item.name[locale];
 
@@ -140,7 +139,7 @@ export function Builder({ initialFormulaId, editId }: { initialFormulaId?: strin
         setSelection({ ...selection, [c]: [item.id] });
         const fee = DEFAULT_POLICY.extraSlotFee[c];
         say(
-          t("swapped", { name: itemName, previous: ITEMS_BY_ID[replaced].name[locale] }),
+          t("swapped", { name: itemName, previous: itemsById[replaced]?.name[locale] ?? replaced }),
           "info",
           preview.allowed && fee !== null
             ? {
@@ -161,7 +160,7 @@ export function Builder({ initialFormulaId, editId }: { initialFormulaId?: strin
         say(t("extraAdded", { name: itemName, price: formatDelta(preview.delta, locale) }));
       }
     },
-    [formula, selection, breakdown, locale, say, t, tc],
+    [formula, selection, breakdown, locale, say, t, tc, itemsById],
   );
 
   const removeItem = useCallback((c: Category, id: string) => {
@@ -179,7 +178,7 @@ export function Builder({ initialFormulaId, editId }: { initialFormulaId?: strin
       setStage("build");
       return;
     }
-    const impact = analyzeFormulaChange(formula, FORMULAS_BY_ID[id], selection, ITEMS_BY_ID, DEFAULT_POLICY);
+    const impact = analyzeFormulaChange(formula, FORMULAS_BY_ID[id], selection, itemsById, DEFAULT_POLICY);
     if (impact.silent) {
       setFormulaId(id);
       setStage("build");
@@ -228,11 +227,11 @@ export function Builder({ initialFormulaId, editId }: { initialFormulaId?: strin
   };
 
   const items = useMemo(() => {
-    const all = ITEMS_BY_CATEGORY[category];
+    const all = byCategory[category];
     const q = normalize(query.trim());
     if (!q) return group === "all" ? all : all.filter((i) => i.group === group);
     return all.filter((i) => normalize(i.name.fr).includes(q) || i.name.ar.includes(query.trim()));
-  }, [category, query, group]);
+  }, [category, query, group, byCategory]);
 
   const extraIds = useMemo(() => new Set(breakdown?.categories[category].extraItemIds ?? []), [breakdown, category]);
 
@@ -752,7 +751,7 @@ interface Draft {
   editing: string | null;
 }
 
-function readDraft(): Draft | null {
+function readDraft(itemsById: Record<string, MenuItem>): Draft | null {
   try {
     const raw = sessionStorage.getItem(DRAFT_KEY);
     if (!raw) return null;
@@ -761,7 +760,7 @@ function readDraft(): Draft | null {
     const selection = emptySelection();
     for (const c of CATEGORIES) {
       const ids = d.selection?.[c];
-      if (Array.isArray(ids)) selection[c] = ids.filter((id) => ITEMS_BY_ID[id]?.category === c);
+      if (Array.isArray(ids)) selection[c] = ids.filter((id) => itemsById[id]?.category === c);
     }
     const stage: Stage = d.stage === "reveal" || d.stage === "formula" ? d.stage : "build";
     return {

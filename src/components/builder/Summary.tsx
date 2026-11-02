@@ -2,7 +2,7 @@
 
 import { Pencil, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { ITEMS_BY_ID } from "@/lib/menu/data";
+import { useMenu } from "@/lib/menu/MenuProvider";
 import { CATEGORIES, type Category, type Formula, type Locale, type Selection } from "@/lib/menu/types";
 import type { PriceBreakdown } from "@/lib/pricing/engine";
 import { formatDelta, formatMAD } from "@/lib/format";
@@ -12,6 +12,7 @@ export function PriceLines({ formula, breakdown }: { formula: Formula; breakdown
   const t = useTranslations("builder");
   const tc = useTranslations("categories");
   const locale = useLocale() as Locale;
+  const { itemsById } = useMenu();
   const premiums = breakdown.lines.filter((l) => l.kind === "premium");
   const extras = CATEGORIES.map((c) => {
     const lines = breakdown.lines.filter((l) => l.kind === "extraSlot" && l.category === c);
@@ -28,7 +29,7 @@ export function PriceLines({ formula, breakdown }: { formula: Formula; breakdown
         l.kind === "premium" ? (
           <div key={`p-${l.itemId}`} className="flex justify-between gap-3">
             <dt className="text-ink-soft">
-              {ITEMS_BY_ID[l.itemId].name[locale]} <span className="text-mute">· {t("premium")}</span>
+              {itemsById[l.itemId]?.name[locale] ?? l.itemId} <span className="text-mute">· {t("premium")}</span>
             </dt>
             <dd className="t-num font-medium">{formatDelta(l.amount, locale)}</dd>
           </div>
@@ -67,6 +68,7 @@ export function Summary({
   const tc = useTranslations("categories");
   const tf = useTranslations("formula");
   const locale = useLocale() as Locale;
+  const { itemsById } = useMenu();
 
   return (
     <div>
@@ -101,7 +103,7 @@ export function Summary({
               {selection[c].length ? (
                 <ul className="mt-2 flex flex-wrap gap-1.5">
                   {selection[c].map((id) => {
-                    const item = ITEMS_BY_ID[id];
+                    const item = itemsById[id];
                     if (!item) return null;
                     const extra = s.extraItemIds.includes(id);
                     return (

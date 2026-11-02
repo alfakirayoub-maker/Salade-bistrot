@@ -31,6 +31,8 @@ export interface MenuItem {
   seasonal?: boolean;
   /** Display order inside its category / group. */
   order: number;
+  /** Visual (sprite / texture) to draw it with, when it differs from its id. */
+  visual?: string;
 }
 
 /**

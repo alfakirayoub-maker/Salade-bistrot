@@ -3,7 +3,7 @@
 import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 import type { Selection } from "@/lib/menu/types";
-import { getAsset, getSpriteUrl, type PieceAsset, type SauceAsset } from "@/lib/visual/assets";
+import { getAsset, getSpriteUrl, resolveVisual, type PieceAsset, type SauceAsset } from "@/lib/visual/assets";
 import { getBaseTexture } from "@/lib/visual/baseTextures";
 import { BOWL_INTERIOR, bowlImageUrl } from "@/lib/visual/bowl";
 import { drizzleFor } from "@/lib/visual/drizzle";
@@ -90,7 +90,7 @@ const BaseLayer = memo(function BaseLayer({ ids, animate }: { ids: string[]; ani
     ids.forEach((id) => {
       const asset = getAsset(id);
       const direct = asset?.kind === "base" ? asset.src : undefined;
-      (direct ? Promise.resolve(direct) : getBaseTexture(id)).then((u) => {
+      (direct ? Promise.resolve(direct) : getBaseTexture(resolveVisual(id))).then((u) => {
         if (alive && u) setUrls((prev) => (prev[id] === u ? prev : { ...prev, [id]: u }));
       });
     });

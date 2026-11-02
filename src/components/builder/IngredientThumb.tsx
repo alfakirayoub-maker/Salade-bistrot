@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useEffect, useState } from "react";
-import { getAsset, getSpriteUrl } from "@/lib/visual/assets";
+import { getAsset, getSpriteUrl, resolveVisual } from "@/lib/visual/assets";
 import { getBaseTexture } from "@/lib/visual/baseTextures";
 
 const ARRANGEMENTS: Record<number, { x: number; y: number; s: number }[]> = {
@@ -18,7 +18,7 @@ const ARRANGEMENTS: Record<number, { x: number; y: number; s: number }[]> = {
 };
 
 /** Circular preview of an ingredient, drawn with the same assets as the bowl. */
-export const IngredientThumb = memo(function IngredientThumb({ id }: { id: string }) {
+export const IngredientThumb = memo(function IngredientThumb({ id, label }: { id: string; label?: string }) {
   const asset = getAsset(id);
   const [urls, setUrls] = useState<string[]>([]);
 
@@ -31,12 +31,21 @@ export const IngredientThumb = memo(function IngredientThumb({ id }: { id: strin
         (u) => alive && setUrls(u.filter((x): x is string => !!x)),
       );
     } else if (asset.kind === "base") {
-      (asset.src ? Promise.resolve(asset.src) : getBaseTexture(id)).then((u) => alive && u && setUrls([u]));
+      (asset.src ? Promise.resolve(asset.src) : getBaseTexture(resolveVisual(id))).then((u) => alive && u && setUrls([u]));
     }
     return () => {
       alive = false;
     };
   }, [id, asset]);
+
+  // An item added from the admin page without a visual: show its initial.
+  if (!asset) {
+    return (
+      <span className="grid h-full w-full place-items-center rounded-full bg-mist font-[family-name:var(--font-heading)] text-[28px] font-extrabold text-leaf-deep" aria-hidden>
+        {(label ?? id).trim().charAt(0).toUpperCase()}
+      </span>
+    );
+  }
 
   if (asset?.kind === "sauce") {
     return (

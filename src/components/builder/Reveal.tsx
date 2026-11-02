@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { ArrowLeft, Check, Pencil, Plus, ShoppingBag } from "lucide-react";
 import gsap from "gsap";
-import { ITEMS_BY_ID } from "@/lib/menu/data";
+import { useMenu } from "@/lib/menu/MenuProvider";
 import { CATEGORIES, type Formula, type Locale, type Selection } from "@/lib/menu/types";
 import type { PriceBreakdown } from "@/lib/pricing/engine";
 import { cart } from "@/lib/cart/store";
@@ -38,6 +38,7 @@ export function Reveal({
   const t = useTranslations("reveal");
   const tc = useTranslations("categories");
   const locale = useLocale() as Locale;
+  const { itemsById } = useMenu();
   const reduced = usePrefersReducedMotion();
   const [added, setAdded] = useState(false);
   const textRef = useRef<HTMLDivElement>(null);
@@ -88,7 +89,7 @@ export function Reveal({
             {CATEGORIES.filter((c) => selection[c].length).map((c) => (
               <div key={c} className="flex gap-4 py-3 text-[14px]">
                 <dt className="w-24 shrink-0 font-medium text-mute">{tc(`${c}.plural`)}</dt>
-                <dd className="min-w-0 text-ink">{selection[c].map((id) => ITEMS_BY_ID[id]?.name[locale]).join(" · ")}</dd>
+                <dd className="min-w-0 text-ink">{selection[c].map((id) => itemsById[id]?.name[locale]).join(" · ")}</dd>
               </div>
             ))}
           </dl>

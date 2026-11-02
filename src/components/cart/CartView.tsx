@@ -3,7 +3,8 @@
 import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Minus, Pencil, Plus, Trash2, MessageCircle, ArrowLeft } from "lucide-react";
-import { FORMULAS_BY_ID, ITEMS_BY_ID, WHATSAPP_NUMBER } from "@/lib/menu/data";
+import { FORMULAS_BY_ID, WHATSAPP_NUMBER } from "@/lib/menu/data";
+import { useMenu } from "@/lib/menu/MenuProvider";
 import { DEFAULT_POLICY } from "@/lib/menu/policies";
 import { CATEGORIES, type Locale } from "@/lib/menu/types";
 import { cart, useCart } from "@/lib/cart/store";
@@ -18,9 +19,10 @@ export function CartView() {
   const t = useTranslations("cart");
   const tf = useTranslations("formula");
   const locale = useLocale() as Locale;
+  const { itemsById } = useMenu();
   const router = useRouter();
   const lines = useCart();
-  const order = useMemo(() => priceOrder(lines, FORMULAS_BY_ID, ITEMS_BY_ID, DEFAULT_POLICY), [lines]);
+  const order = useMemo(() => priceOrder(lines, FORMULAS_BY_ID, itemsById, DEFAULT_POLICY), [lines, itemsById]);
   const [customer, setCustomer] = useState<CustomerInfo>({ name: "", phone: "", mode: "pickup", address: "", notes: "" });
   const [reviewing, setReviewing] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -34,7 +36,7 @@ export function CartView() {
     return Object.keys(e).length === 0;
   };
 
-  const message = useMemo(() => buildWhatsAppMessage(order, customer, ITEMS_BY_ID, locale), [order, customer, locale]);
+  const message = useMemo(() => buildWhatsAppMessage(order, customer, itemsById, locale), [order, customer, locale, itemsById]);
 
   const send = () => {
     if (!validate()) return;
@@ -87,7 +89,7 @@ export function CartView() {
                         <p className="t-price shrink-0 text-[17px]">{formatMAD(l.lineTotal, locale)}</p>
                       </div>
                       <p className="t-small mt-1.5 line-clamp-3 text-ink-soft">
-                        {CATEGORIES.flatMap((c) => line.selection[c]).map((id) => ITEMS_BY_ID[id]?.name[locale] ?? id).join(" · ")}
+                        {CATEGORIES.flatMap((c) => line.selection[c]).map((id) => itemsById[id]?.name[locale] ?? id).join(" · ")}
                       </p>
                       {!l.valid && <p className="t-small mt-2 font-medium text-red-700">{t("lineInvalid")}</p>}
                     </div>

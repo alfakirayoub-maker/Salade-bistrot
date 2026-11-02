@@ -49,7 +49,7 @@ export const IngredientChip = memo(function IngredientChip({ item, locale, selec
         }`}
       >
         <span className={`block h-full w-full transition-transform duration-500 ease-[var(--ease-out-soft)] ${selected ? "scale-[0.92]" : "group-hover:scale-[1.05]"}`}>
-          <IngredientThumb id={item.id} />
+          <IngredientThumb id={item.id} label={name} />
         </span>
         <span
           className={`absolute -end-0.5 -top-0.5 grid h-[22px] w-[22px] place-items-center rounded-full bg-leaf-deep text-white ring-[2.5px] ring-cream transition-[transform,opacity] duration-300 ease-[var(--ease-out-soft)] ${

@@ -15,7 +15,7 @@ the UI marks any provisional allowance with an "à confirmer" badge (none left s
 | Q-06 | Does a premium base count as the included base (Roquette instead of Laitue = +15 only)? | Yes: premium applies, no extra-slot fee inside the allowance. | engine |
 | Q-07 | "Olives vertes / noires", "Poulet / Poulet grillé": one choice, or must the customer specify which? | Treated as one item each. | `data.ts` |
 | Q-08 | ~~"Acajou" = cashew?~~ Resolved: the new menu prints "Noix de cajou". | — | `data.ts` |
-| Q-09 | Which "selon disponibilité" items (fruits + haricots verts, artichaut, brocolis, tomates cerises, fenouil) are available today? | All marked available, grouped under "Selon disponibilité"; admin toggle planned (Phase 5). | `MenuItem.available` |
+| Q-09 | Which "selon disponibilité" items (fruits + haricots verts, artichaut, brocolis, tomates cerises, fenouil) are available today? | Grouped under "Selon disponibilité"; staff toggle availability daily from `/admin` (see docs/ADMIN.md). | `MenuItem.available` |
 | Q-10 | Delivery: zones, fees, minimum order, hours? | Customer can state a preference; message says fees are confirmed on WhatsApp. No fee is computed. | cart |
 | Q-11 | Payment methods? | Not mentioned anywhere; the restaurant confirms on WhatsApp. | cart |
 | Q-12 | WhatsApp message language: always French for the staff, or the customer's language? | Customer's language. | `lib/cart/order.ts` |

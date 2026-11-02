@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { FORMULAS, MENU_ITEMS, OFFICIAL_EXTRA_SLOT_FEES, TOPPING_GROUPS } from "@/lib/menu/data";
+import { FORMULAS, OFFICIAL_EXTRA_SLOT_FEES, TOPPING_GROUPS } from "@/lib/menu/data";
+import { getMenuItems } from "@/lib/menu/source";
 import { CATEGORIES, type Locale, type MenuItem } from "@/lib/menu/types";
 import { formatDelta, formatMAD } from "@/lib/format";
 import { FormulaBadge, FormulaIncludes } from "@/components/builder/FormulaCards";
@@ -32,6 +33,7 @@ export default async function MenuPage({ params }: PageProps<"/[locale]/menu">) 
   const t = await getTranslations("menuPage");
   const tb = await getTranslations("builder");
   const tf = await getTranslations("formula");
+  const menuItems = await getMenuItems();
 
   return (
     <main className="mx-auto max-w-5xl px-5 pt-8 sm:px-6 sm:pt-12">
@@ -63,7 +65,7 @@ export default async function MenuPage({ params }: PageProps<"/[locale]/menu">) 
       </section>
 
       {CATEGORIES.map((c, i) => {
-        const items = MENU_ITEMS.filter((m) => m.category === c);
+        const items = menuItems.filter((m) => m.category === c);
         return (
           <section key={c} className="mt-14" aria-labelledby={`menu-${c}`}>
             <p className="t-eyebrow t-num text-mute">{tb("stepOf", { step: i + 1, total: CATEGORIES.length })}</p>
