@@ -1,4 +1,4 @@
-# Bistrot Salad Bar — Salad builder (prototype)
+# Bistrot Salad Bar — Salad builder
 
 Mobile-first, bilingual (FR / AR-RTL) build-your-own-salad experience for
 Bistrot Salad Bar, Meknès. Next.js 16 · TypeScript · Tailwind 4 · GSAP · next-intl.
@@ -19,10 +19,8 @@ Routes: `/fr`, `/ar`, `/{locale}/composer`, `/{locale}/menu`, `/{locale}/panier`
 - Pricing engine: `src/lib/pricing/engine.ts` (+ tests)
 - Bowl engine: `src/components/bowl/SaladBowl.tsx`, assets in `src/lib/visual/`
 - Translations: `src/messages/{fr,ar}.json`
-- Draft database: `supabase/migrations/0001_init.sql` (Phase 5, not wired)
+- Database (Supabase, applied): `supabase/migrations/`; admin page `/admin` → `docs/ADMIN.md`
 
 Docs: `docs/ANALYSIS_AND_PLAN.md`, `docs/OPEN_QUESTIONS.md`, `docs/ASSETS.md`.
 
-**Ingredient visuals are prototypes** (procedural illustrations), not production
-photography. See `docs/ASSETS.md` for the replacement pipeline. There is no
-admin dashboard yet (Phase 5, behind Supabase Auth + RLS).
+Ingredient visuals are illustrations drawn in code (kept by the restaurant); real photos can replace any of them, see `docs/ASSETS.md`. Menu items are managed from `/admin` (see `docs/ADMIN.md`).

@@ -21,8 +21,7 @@
   "order": "Commander",
   "whatsapp": "Commande via WhatsApp",
   "compose": "Composer ma salade",
-  "menu": "Notre menu",
-  "prototype": "Prototype — visuels d'ingrédients provisoires, en attente des photographies officielles."
+  "menu": "Notre menu"
  },
  "notFound": {
   "title": "Cette page n'existe pas",
@@ -108,8 +107,6 @@
   "bowlRegion": "Votre salade",
   "emptyBowl": "Choisissez votre base",
   "bowlAlt": "Aperçu de votre salade en cours de composition",
-  "prototypeHint": "Les visuels d'ingrédients sont provisoires en attendant les photos officielles.",
-  "prototypeBadge": "Visuels provisoires",
   "stepOf": "Étape {step} sur {total}",
   "steps": {
    "base": "Choisissez votre base",

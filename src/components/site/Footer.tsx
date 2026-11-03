@@ -34,7 +34,6 @@ export function Footer() {
             </Link>
           </div>
         </div>
-        <p className="mt-10 text-[12px] text-white/40">{t("prototype")}</p>
       </div>
     </footer>
   );

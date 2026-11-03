@@ -4,14 +4,14 @@
 
 | Asset | Status |
 |-------|--------|
-| Ingredient visuals (76 items) | **PROTOTYPE**: procedural SVG sprites (`src/lib/visual/sprites.ts`), rasterised to PNG in the browser. Distinct per item, but illustrations, not photography. |
-| Base textures (8) | **PROTOTYPE**: procedural canvas paintings (`src/lib/visual/baseTextures.ts`). |
-| Sauces (10) | **PROTOTYPE**: SVG drizzle per sauce colour (`src/lib/visual/drizzle.ts`). |
+| Ingredient visuals | **Final (chosen by the restaurant, Nov 2026)**: illustrated SVG sprites (`src/lib/visual/sprites.ts`), rasterised to PNG in the browser. Photos can still replace any of them later. |
+| Base textures (8) | **Final**: procedural canvas paintings (`src/lib/visual/baseTextures.ts`). |
+| Sauces (10) | **Final**: SVG drizzle per sauce colour (`src/lib/visual/drizzle.ts`). |
 | Bowl | Procedural charcoal stoneware (`src/lib/visual/bowl.ts`), echoing the official menu's dark bowl. Can stay or be replaced by a photo. |
 | Logo | Rasterised from the PDF. Official vector needed. |
 | Hero bowl photo, salad bar photo | Extracted from the PDF menu. Rights to confirm (Q-15). |
 
-The UI labels the builder "Visuels provisoires" and the footer says so too.
+The restaurant chose to keep the illustrations, so the site no longer labels them as provisional.
 
 ## Replacing a prototype with real photography
 

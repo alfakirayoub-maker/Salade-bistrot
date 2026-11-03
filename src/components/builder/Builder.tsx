@@ -345,12 +345,6 @@ export function Builder({ initialFormulaId, editId }: { initialFormulaId?: strin
         >
           <SaladBowl selection={selection} emptyLabel={t("emptyBowl")} label={t("bowlAlt")} />
         </div>
-        <p
-          className="pointer-events-none absolute end-4 top-3 hidden rounded-full bg-cream/90 px-2.5 py-1 text-[10.5px] font-medium text-mute shadow-[inset_0_0_0_1px_var(--color-line)] sm:block lg:end-6 lg:top-6"
-          title={t("prototypeHint")}
-        >
-          {t("prototypeBadge")}
-        </p>
       </section>
 
       {/* Picker sheet */}
